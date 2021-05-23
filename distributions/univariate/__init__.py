@@ -1,2 +1,6 @@
 # TODO: move imports
-from distributions.univariate.discrete import Bernoulli, Categorical  # noqa: F401
+from distributions.univariate.discrete import (  # noqa: F401
+    Bernoulli,
+    Binomial,
+    Categorical,
+)

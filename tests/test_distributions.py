@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from distributions import Bernoulli, Categorical
+from distributions import Bernoulli, Binomial, Categorical
 
 np.random.seed(42)
 
@@ -58,5 +58,34 @@ class TestCategorical(unittest.TestCase):
         for cls in range(self.n_classes):
             _, counts = np.unique(self.X[self.y == cls], return_counts=True)
             true[cls] = counts / counts.sum()
+
+        self.assertTrue(np.allclose(pred, true))
+
+
+class TestBinomial(unittest.TestCase):
+
+    n = 3
+    n_classes = 2
+    X = np.random.randint(low=0, high=n, size=1000)
+    y = np.random.randint(low=0, high=n_classes, size=1000)
+
+    def test_prob_X(self):
+        dist = Binomial(n=self.n)
+        dist.fit(self.X)
+
+        pred = dist.prob
+        true = self.X.mean() / self.n
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_prob_X_y(self):
+        dist = Binomial(n=self.n)
+        dist.fit(self.X, self.y)
+
+        pred = dist.prob
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = self.X[self.y == cls].mean() / self.n
 
         self.assertTrue(np.allclose(pred, true))

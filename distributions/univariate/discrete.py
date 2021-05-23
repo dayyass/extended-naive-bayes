@@ -57,3 +57,31 @@ class Categorical(AbstractDistribution):
                 for x in X[y == cls]:
                     self.prob[cls][x] += 1
             self.prob /= self.prob.sum(axis=1)[:, np.newaxis]
+
+
+class Binomial(AbstractDistribution):
+    """
+    Binomial distributions with parameter prob.
+    """
+
+    def __init__(self, n: int) -> None:
+        """
+        Init distribution with N independent experiments.
+
+        :param int n: number of independent experiments.
+        """
+
+        assert n > 1, "for n = 1 use Bernoulli distribution."
+
+        self.n = n
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+
+        if y is None:
+            self.prob = X.mean() / self.n
+        else:
+            n_classes = max(y) + 1
+            self.prob = np.zeros(n_classes)
+
+            for cls in range(n_classes):
+                self.prob[cls] = X[y == cls].mean() / self.n
