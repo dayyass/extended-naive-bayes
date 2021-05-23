@@ -56,7 +56,7 @@ class TestBernoulli(unittest.TestCase):
         dist = Bernoulli()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X, self.y)
+        pred = dist.predict_log_proba(self.X)
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
@@ -112,7 +112,7 @@ class TestCategorical(unittest.TestCase):
         dist = Categorical(k=self.k)
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X, self.y)
+        pred = dist.predict_log_proba(self.X)
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
@@ -165,7 +165,7 @@ class TestBinomial(unittest.TestCase):
         dist = Binomial(n=self.n)
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X, self.y)
+        pred = dist.predict_log_proba(self.X)
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
@@ -216,7 +216,7 @@ class TestGeometric(unittest.TestCase):
         dist = Geometric()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X, self.y)
+        pred = dist.predict_log_proba(self.X)
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
@@ -267,7 +267,7 @@ class TestPoisson(unittest.TestCase):
         dist = Poisson()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X, self.y)
+        pred = dist.predict_log_proba(self.X)
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):

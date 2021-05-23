@@ -21,15 +21,13 @@ class AbstractDistribution(ABC):
         pass
 
     @abstractmethod
-    def predict_log_proba(
-        self, X: np.ndarray, y: Optional[np.ndarray] = None
-    ) -> np.ndarray:
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
         """
         Method to compute log probabilities given X (data).
-        If y is provided, computes log probabilities of X for each class y.
 
         :param np.ndarray X: training data.
-        :param Optional[np.ndarray] y: target values.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
         """
         pass
 

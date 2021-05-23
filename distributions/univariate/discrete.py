@@ -25,13 +25,11 @@ class Bernoulli(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls])  # type: ignore
 
-    def predict_log_proba(
-        self, X: np.ndarray, y: Optional[np.ndarray] = None
-    ) -> np.ndarray:
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_univariate_input_data(X=X)
 
-        if y is None:
+        if not isinstance(self.prob, np.ndarray):
             log_proba = stats.bernoulli.logpmf(X, p=self.prob)
         else:
             n_samples = X.shape[0]
@@ -88,13 +86,11 @@ class Categorical(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls], k=self.k)  # type: ignore
 
-    def predict_log_proba(
-        self, X: np.ndarray, y: Optional[np.ndarray] = None
-    ) -> np.ndarray:
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_univariate_input_data(X=X)
 
-        if y is None:
+        if self.prob.ndim == 1:
             log_proba = stats.multinomial.logpmf(
                 to_categorical(X, num_classes=self.k), n=1, p=self.prob
             )
@@ -161,13 +157,11 @@ class Binomial(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls], n=self.n)  # type: ignore
 
-    def predict_log_proba(
-        self, X: np.ndarray, y: Optional[np.ndarray] = None
-    ) -> np.ndarray:
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_univariate_input_data(X=X)
 
-        if y is None:
+        if not isinstance(self.prob, np.ndarray):
             log_proba = stats.binom.logpmf(X, n=self.n, p=self.prob)
         else:
             n_samples = X.shape[0]
@@ -216,13 +210,11 @@ class Geometric(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls])  # type: ignore
 
-    def predict_log_proba(
-        self, X: np.ndarray, y: Optional[np.ndarray] = None
-    ) -> np.ndarray:
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_univariate_input_data(X=X)
 
-        if y is None:
+        if not isinstance(self.prob, np.ndarray):
             log_proba = stats.geom.logpmf(X, p=self.prob)
         else:
             n_samples = X.shape[0]
@@ -268,13 +260,11 @@ class Poisson(AbstractDistribution):
             for cls in range(n_classes):
                 self.lambda_[cls] = self.compute_lambda_mle(X[y == cls])  # type: ignore
 
-    def predict_log_proba(
-        self, X: np.ndarray, y: Optional[np.ndarray] = None
-    ) -> np.ndarray:
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_univariate_input_data(X=X)
 
-        if y is None:
+        if not isinstance(self.lambda_, np.ndarray):
             log_proba = stats.poisson.logpmf(X, mu=self.lambda_)
         else:
             n_samples = X.shape[0]
