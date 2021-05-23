@@ -230,3 +230,6 @@ class TestExponential(unittest.TestCase):
             true[cls] = 1 / self.X[self.y == cls].mean()
 
         self.assertTrue(np.allclose(pred, true))
+
+
+# TODO: add Gamma tests

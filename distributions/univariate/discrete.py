@@ -75,7 +75,7 @@ class Binomial(AbstractDistribution):
 
         self.n = n
 
-    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
         if y is None:
             self.prob = X.mean() / self.n
@@ -102,7 +102,7 @@ class Geometric(AbstractDistribution):
 
         self.n = n
 
-    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
         if y is None:
             self.prob = 1 / X.mean()
@@ -119,7 +119,7 @@ class Poisson(AbstractDistribution):
     Poisson distributions with parameter lambda.
     """
 
-    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
         if y is None:
             self.lambda_ = X.mean()
