@@ -3,8 +3,9 @@ import unittest
 import numpy as np
 from scipy import stats
 
-from distributions import (  # Binomial,; ContinuousUnivariateDistribution,; Exponential,; Gaussian,; Geometric,; Poisson,
+from distributions import (  # ContinuousUnivariateDistribution,; Exponential,; Gaussian,; Geometric,; Poisson,
     Bernoulli,
+    Binomial,
     Categorical,
 )
 from utils import to_categorical
@@ -120,36 +121,57 @@ class TestCategorical(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
 
-#
-#
-# class TestBinomial(unittest.TestCase):
-#
-#     n = 3
-#     n_samples = 1000
-#     n_classes = 2
-#     X = np.random.randint(low=0, high=n, size=n_samples)
-#     y = np.random.randint(low=0, high=n_classes, size=n_samples)
-#
-#     def test_fit_X(self):
-#         dist = Binomial(n=self.n)
-#         dist.fit(self.X)
-#
-#         pred = dist.prob
-#         true = self.X.mean() / self.n
-#
-#         self.assertTrue(np.allclose(pred, true))
-#
-#     def test_fit_X_y(self):
-#         dist = Binomial(n=self.n)
-#         dist.fit(self.X, self.y)
-#
-#         pred = dist.prob
-#
-#         true = np.zeros(self.n_classes)
-#         for cls in range(self.n_classes):
-#             true[cls] = self.X[self.y == cls].mean() / self.n
-#
-#         self.assertTrue(np.allclose(pred, true))
+class TestBinomial(unittest.TestCase):
+
+    n = 3
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randint(low=0, high=n, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_fit_X(self):
+        dist = Binomial(n=self.n)
+        dist.fit(self.X)
+
+        pred = dist.prob
+        true = self.X.mean() / self.n
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X(self):
+        dist = Binomial(n=self.n)
+        dist.fit(self.X)
+
+        pred = dist.predict_log_proba(self.X)
+        true = stats.binom.logpmf(self.X, n=self.n, p=dist.prob)
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_fit_X_y(self):
+        dist = Binomial(n=self.n)
+        dist.fit(self.X, self.y)
+
+        pred = dist.prob
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = self.X[self.y == cls].mean() / self.n
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X_y(self):
+        dist = Binomial(n=self.n)
+        dist.fit(self.X, self.y)
+
+        pred = dist.predict_log_proba(self.X, self.y)
+
+        true = np.zeros((self.X.shape[0], self.n_classes))
+        for cls in range(self.n_classes):
+            true[:, cls] = stats.binom.logpmf(self.X, n=self.n, p=dist.prob[cls])
+
+        self.assertTrue(np.allclose(pred, true))
+
+
 #
 #
 # class TestGeometric(unittest.TestCase):
