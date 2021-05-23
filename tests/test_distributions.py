@@ -3,11 +3,12 @@ import unittest
 import numpy as np
 from scipy import stats
 
-from distributions import (  # ContinuousUnivariateDistribution,; Exponential,; Gaussian,; Poisson,
+from distributions import (  # ContinuousUnivariateDistribution,; Exponential,; Gaussian,
     Bernoulli,
     Binomial,
     Categorical,
     Geometric,
+    Poisson,
 )
 from utils import to_categorical
 
@@ -224,36 +225,57 @@ class TestGeometric(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
 
-#
-#
-# class TestPoisson(unittest.TestCase):
-#
-#     n = 3
-#     n_samples = 1000
-#     n_classes = 2
-#     X = np.random.randint(low=0, high=n, size=n_samples)
-#     y = np.random.randint(low=0, high=n_classes, size=n_samples)
-#
-#     def test_fit_X(self):
-#         dist = Poisson()
-#         dist.fit(self.X)
-#
-#         pred = dist.lambda_
-#         true = self.X.mean()
-#
-#         self.assertTrue(np.allclose(pred, true))
-#
-#     def test_fit_X_y(self):
-#         dist = Poisson()
-#         dist.fit(self.X, self.y)
-#
-#         pred = dist.lambda_
-#
-#         true = np.zeros(self.n_classes)
-#         for cls in range(self.n_classes):
-#             true[cls] = self.X[self.y == cls].mean()
-#
-#         self.assertTrue(np.allclose(pred, true))
+class TestPoisson(unittest.TestCase):
+
+    n = 3
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randint(low=0, high=n, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_fit_X(self):
+        dist = Poisson()
+        dist.fit(self.X)
+
+        pred = dist.lambda_
+        true = self.X.mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X(self):
+        dist = Poisson()
+        dist.fit(self.X)
+
+        pred = dist.predict_log_proba(self.X)
+        true = stats.poisson.logpmf(self.X, mu=dist.lambda_)
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_fit_X_y(self):
+        dist = Poisson()
+        dist.fit(self.X, self.y)
+
+        pred = dist.lambda_
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = self.X[self.y == cls].mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X_y(self):
+        dist = Poisson()
+        dist.fit(self.X, self.y)
+
+        pred = dist.predict_log_proba(self.X, self.y)
+
+        true = np.zeros((self.X.shape[0], self.n_classes))
+        for cls in range(self.n_classes):
+            true[:, cls] = stats.poisson.logpmf(self.X, mu=dist.lambda_[cls])
+
+        self.assertTrue(np.allclose(pred, true))
+
+
 #
 #
 # class TestGaussian(unittest.TestCase):
