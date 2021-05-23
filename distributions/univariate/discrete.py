@@ -216,6 +216,24 @@ class Geometric(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls])  # type: ignore
 
+    def predict_log_proba(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X, y=y)
+
+        if y is None:
+            log_proba = stats.geom.logpmf(X, p=self.prob)
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.prob)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = stats.geom.logpmf(X, p=self.prob[cls])  # type: ignore
+
+        return log_proba
+
     @staticmethod
     def compute_prob_mle(X: np.ndarray) -> float:
         """
@@ -225,6 +243,8 @@ class Geometric(AbstractDistribution):
         :return: maximum likelihood estimator for parameter prob.
         :rtype: float
         """
+
+        Geometric._check_univariate_input_data(X=X)
 
         prob = 1 / X.mean()
         return prob
