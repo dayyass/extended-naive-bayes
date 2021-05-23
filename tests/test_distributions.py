@@ -2,15 +2,16 @@ import unittest
 
 import numpy as np
 
-from distributions import Bernoulli, Binomial, Categorical, Geometric
+from distributions import Bernoulli, Binomial, Categorical, Geometric, Poisson
 
 np.random.seed(42)
 
 
 class TestBernoulli(unittest.TestCase):
 
+    n_classes = 2
     X = np.random.randint(low=0, high=2, size=1000)
-    y = np.random.randint(low=0, high=2, size=1000)
+    y = np.random.randint(low=0, high=n_classes, size=1000)
 
     def test_prob_X(self):
         dist = Bernoulli()
@@ -26,7 +27,11 @@ class TestBernoulli(unittest.TestCase):
         dist.fit(self.X, self.y)
 
         pred = dist.prob
-        true = np.array([self.X[self.y == 0].mean(), self.X[self.y == 1].mean()])
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = self.X[self.y == cls].mean()
+
         self.assertTrue(np.allclose(pred, true))
 
 
@@ -116,5 +121,34 @@ class TestGeometric(unittest.TestCase):
         true = np.zeros(self.n_classes)
         for cls in range(self.n_classes):
             true[cls] = 1 / self.X[self.y == cls].mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+
+class TestPoisson(unittest.TestCase):
+
+    n = 3
+    n_classes = 2
+    X = np.random.randint(low=0, high=n, size=1000)
+    y = np.random.randint(low=0, high=n_classes, size=1000)
+
+    def test_prob_X(self):
+        dist = Poisson()
+        dist.fit(self.X)
+
+        pred = dist.lambda_
+        true = self.X.mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_prob_X_y(self):
+        dist = Poisson()
+        dist.fit(self.X, self.y)
+
+        pred = dist.lambda_
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = self.X[self.y == cls].mean()
 
         self.assertTrue(np.allclose(pred, true))

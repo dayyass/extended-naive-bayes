@@ -112,3 +112,20 @@ class Geometric(AbstractDistribution):
 
             for cls in range(n_classes):
                 self.prob[cls] = 1 / X[y == cls].mean()
+
+
+class Poisson(AbstractDistribution):
+    """
+    Poisson distributions with parameter lambda.
+    """
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+
+        if y is None:
+            self.lambda_ = X.mean()
+        else:
+            n_classes = max(y) + 1
+            self.lambda_ = np.zeros(n_classes)
+
+            for cls in range(n_classes):
+                self.lambda_[cls] = X[y == cls].mean()

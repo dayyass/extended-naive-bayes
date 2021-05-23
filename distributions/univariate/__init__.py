@@ -4,4 +4,5 @@ from distributions.univariate.discrete import (  # noqa: F401
     Binomial,
     Categorical,
     Geometric,
+    Poisson,
 )
