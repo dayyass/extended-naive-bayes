@@ -1,2 +1,2 @@
 # TODO: move imports
-from distributions.univariate import Bernoulli  # noqa: F401
+from distributions.univariate import Bernoulli, Categorical  # noqa: F401

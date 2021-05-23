@@ -10,7 +10,7 @@ class Bernoulli(AbstractDistribution):
     Bernoulli distributions with parameter prob.
     """
 
-    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
         self._check_univariate_input_data(X=X, y=y)
 
@@ -22,3 +22,38 @@ class Bernoulli(AbstractDistribution):
 
             for cls in range(n_classes):
                 self.prob[cls] = X[y == cls].mean()
+
+
+class Categorical(AbstractDistribution):
+    """
+    Categorical distributions with parameters vector prob.
+    """
+
+    def __init__(self, k: int) -> None:
+        """
+        Init distribution with K possible categories.
+
+        :param int k: number of possible categories.
+        """
+
+        assert k > 2, "for k = 2 use Bernoulli distribution."
+
+        self.k = k
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+
+        self._check_univariate_input_data(X=X, y=y)
+
+        if y is None:
+            self.prob = np.zeros(self.k)
+            for x in X:
+                self.prob[x] += 1
+            self.prob /= self.prob.sum()
+        else:
+            n_classes = max(y) + 1
+            self.prob = np.zeros((n_classes, self.k))
+
+            for cls in range(n_classes):
+                for x in X[y == cls]:
+                    self.prob[cls][x] += 1
+            self.prob /= self.prob.sum(axis=1)[:, np.newaxis]
