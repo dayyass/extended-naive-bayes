@@ -3,6 +3,7 @@ from distributions.univariate import (  # noqa: F401
     Beta,
     Binomial,
     Categorical,
+    ContinuousUnivariateDistribution,
     Exponential,
     Gamma,
     Gaussian,

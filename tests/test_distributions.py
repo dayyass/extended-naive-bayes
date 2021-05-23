@@ -1,11 +1,13 @@
 import unittest
 
 import numpy as np
+from scipy import stats
 
 from distributions import (
     Bernoulli,
     Binomial,
     Categorical,
+    ContinuousUnivariateDistribution,
     Exponential,
     Gaussian,
     Geometric,
@@ -232,4 +234,44 @@ class TestExponential(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
 
-# TODO: add Gamma and Beta tests
+# TODO: add Gamma and Beta tests (also for TestContinuousUnivariateDistribution)
+
+
+class TestContinuousUnivariateDistribution(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randn(n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_prob_gaussian_X(self):
+        dist_1 = ContinuousUnivariateDistribution(stats.norm)
+        dist_1.fit(self.X)
+
+        dist_2 = Gaussian()
+        dist_2.fit(self.X)
+
+        pred_1 = dist_1.distribution_params[0]  # mu
+        pred_2 = dist_1.distribution_params[1]  # sigma / std
+
+        true_1 = dist_2.mu
+        true_2 = dist_2.sigma
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
+
+    def test_prob_gaussian_X_y(self):
+        dist_1 = ContinuousUnivariateDistribution(stats.norm)
+        dist_1.fit(self.X, self.y)
+
+        dist_2 = Gaussian()
+        dist_2.fit(self.X, self.y)
+
+        pred_1 = dist_1.distribution_params[:, 0]  # mu
+        pred_2 = dist_1.distribution_params[:, 1]  # sigma / std
+
+        true_1 = dist_2.mu
+        true_2 = dist_2.sigma
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
