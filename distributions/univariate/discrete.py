@@ -85,3 +85,30 @@ class Binomial(AbstractDistribution):
 
             for cls in range(n_classes):
                 self.prob[cls] = X[y == cls].mean() / self.n
+
+
+class Geometric(AbstractDistribution):
+    """
+    Geometric distributions with parameter prob.
+    Probability distribution of the number X of Bernoulli trials needed to get one success.
+    """
+
+    def __init__(self, n):
+        """
+        Init distribution with N independent experiments.
+
+        :param int n: number of independent experiments.
+        """
+
+        self.n = n
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+
+        if y is None:
+            self.prob = 1 / X.mean()
+        else:
+            n_classes = max(y) + 1
+            self.prob = np.zeros(n_classes)
+
+            for cls in range(n_classes):
+                self.prob[cls] = 1 / X[y == cls].mean()
