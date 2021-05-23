@@ -241,15 +241,16 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
 
     n_samples = 1000
     n_classes = 2
-    X = np.random.randn(n_samples)
+    X_norm = np.random.randn(n_samples)
+    # X_expon = np.random.exponential(scale=2, size=n_samples)
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_gaussian_X(self):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
-        dist_1.fit(self.X)
+        dist_1.fit(self.X_norm)
 
         dist_2 = Gaussian()
-        dist_2.fit(self.X)
+        dist_2.fit(self.X_norm)
 
         pred_1 = dist_1.distribution_params[0]  # mu
         pred_2 = dist_1.distribution_params[1]  # sigma / std
@@ -262,10 +263,10 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
 
     def test_prob_gaussian_X_y(self):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
-        dist_1.fit(self.X, self.y)
+        dist_1.fit(self.X_norm, self.y)
 
         dist_2 = Gaussian()
-        dist_2.fit(self.X, self.y)
+        dist_2.fit(self.X_norm, self.y)
 
         pred_1 = dist_1.distribution_params[:, 0]  # mu
         pred_2 = dist_1.distribution_params[:, 1]  # sigma / std
@@ -275,3 +276,27 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
 
         self.assertTrue(np.allclose(pred_1, true_1))
         self.assertTrue(np.allclose(pred_2, true_2))
+
+    # def test_prob_exponential_X(self):
+    #     dist_1 = ContinuousUnivariateDistribution(stats.gamma)
+    #     dist_1.fit(self.X_expon)
+    #
+    #     dist_2 = Exponential()
+    #     dist_2.fit(self.X_expon)
+    #
+    #     pred = dist_1.distribution_params[0]  # lambda
+    #     true = dist_2.lambda_
+    #
+    #     self.assertTrue(np.allclose(pred, true))
+    #
+    # def test_prob_exponential_X_y(self):
+    #     dist_1 = ContinuousUnivariateDistribution(stats.gamma)
+    #     dist_1.fit(self.X_expon, self.y)
+    #
+    #     dist_2 = Exponential()
+    #     dist_2.fit(self.X_expon, self.y)
+    #
+    #     pred = dist_1.distribution_params[:, 0]  # lambda
+    #     true = dist_2.lambda_
+    #
+    #     self.assertTrue(np.allclose(pred, true))
