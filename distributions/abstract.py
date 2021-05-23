@@ -5,7 +5,6 @@ import numpy as np
 
 
 # TODO: hide from user
-# TODO: add method "predict_log_proba"
 class AbstractDistribution(ABC):
     """
     Abstract base class to represent probability distributions.
@@ -21,8 +20,22 @@ class AbstractDistribution(ABC):
         """
         pass
 
-    def _check_univariate_input_data(
+    @abstractmethod
+    def predict_log_proba(
         self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+        If y is provided, computes log probabilities of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
+        pass
+
+    @staticmethod
+    def _check_univariate_input_data(
+        X: np.ndarray, y: Optional[np.ndarray] = None
     ) -> None:
         """
         Method to check correctness of input data to fit method for univariate distributions.

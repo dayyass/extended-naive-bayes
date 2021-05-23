@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from scipy import stats
 
 from distributions.abstract import AbstractDistribution
 
@@ -23,6 +24,24 @@ class Bernoulli(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls])  # type: ignore
 
+    def predict_log_proba(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X, y=y)
+
+        if y is None:
+            log_proba = stats.bernoulli.logpmf(X, p=self.prob)
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.prob)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = stats.bernoulli.logpmf(X, p=self.prob[cls])  # type: ignore
+
+        return log_proba
+
     @staticmethod
     def compute_prob_mle(X: np.ndarray) -> float:
         """
@@ -32,6 +51,8 @@ class Bernoulli(AbstractDistribution):
         :return: maximum likelihood estimator for parameter prob.
         :rtype: float
         """
+
+        Bernoulli._check_univariate_input_data(X=X)
 
         prob = X.mean()
         return prob
