@@ -12,17 +12,45 @@ class Gaussian(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
+        self._check_univariate_input_data(X=X, y=y)
+
         if y is None:
-            self.mu = X.mean()
-            self.sigma = X.std()
+            self.mu = self.compute_mu_mle(X)
+            self.sigma = self.compute_sigma_mle(X)
         else:
             n_classes = max(y) + 1
             self.mu = np.zeros(n_classes)
             self.sigma = np.zeros(n_classes)
 
             for cls in range(n_classes):
-                self.mu[cls] = X[y == cls].mean()
-                self.sigma[cls] = X[y == cls].std()
+                self.mu[cls] = self.compute_mu_mle(X[y == cls])  # type: ignore
+                self.sigma[cls] = self.compute_sigma_mle(X[y == cls])  # type: ignore
+
+    @staticmethod
+    def compute_mu_mle(X: np.ndarray) -> float:
+        """
+        Compute maximum likelihood estimator for parameter mu.
+
+        :param np.ndarray X: training data.
+        :return: maximum likelihood estimator for parameter mu.
+        :rtype: float
+        """
+
+        mu = X.mean()
+        return mu
+
+    @staticmethod
+    def compute_sigma_mle(X: np.ndarray) -> float:
+        """
+        Compute maximum likelihood estimator for parameter sigma.
+
+        :param np.ndarray X: training data.
+        :return: maximum likelihood estimator for parameter sigma.
+        :rtype: float
+        """
+
+        sigma = X.std()
+        return sigma
 
 
 class Exponential(AbstractDistribution):
@@ -32,14 +60,29 @@ class Exponential(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
+        self._check_univariate_input_data(X=X, y=y)
+
         if y is None:
-            self.lambda_ = 1 / X.mean()
+            self.lambda_ = self.compute_lambda_mle(X)
         else:
             n_classes = max(y) + 1
             self.lambda_ = np.zeros(n_classes)
 
             for cls in range(n_classes):
-                self.lambda_[cls] = 1 / X[y == cls].mean()
+                self.lambda_[cls] = self.compute_lambda_mle(X[y == cls])  # type: ignore
+
+    @staticmethod
+    def compute_lambda_mle(X: np.ndarray) -> float:
+        """
+        Compute maximum likelihood estimator for parameter lambda.
+
+        :param np.ndarray X: training data.
+        :return: maximum likelihood estimator for parameter lambda.
+        :rtype: float
+        """
+
+        lambda_ = 1 / X.mean()
+        return lambda_
 
 
 class Gamma(AbstractDistribution):
@@ -49,20 +92,22 @@ class Gamma(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
+        self._check_univariate_input_data(X=X, y=y)
+
         if y is None:
-            self.alpha = self._compute_alpha_mme(X)
-            self.beta = self._compute_beta_mme(X)
+            self.alpha = self.compute_alpha_mme(X)
+            self.beta = self.compute_beta_mme(X)
         else:
             n_classes = max(y) + 1
             self.alpha = np.zeros(n_classes)
             self.beta = np.zeros(n_classes)
 
             for cls in range(n_classes):
-                self.alpha[cls] = self._compute_alpha_mme(X[y == cls])  # type: ignore
-                self.beta[cls] = self._compute_beta_mme(X[y == cls])  # type: ignore
+                self.alpha[cls] = self.compute_alpha_mme(X[y == cls])  # type: ignore
+                self.beta[cls] = self.compute_beta_mme(X[y == cls])  # type: ignore
 
     @staticmethod
-    def _compute_alpha_mme(X: np.ndarray) -> float:
+    def compute_alpha_mme(X: np.ndarray) -> float:
         """
         Compute mixed type log-moment estimator for parameter alpha.
 
@@ -81,7 +126,7 @@ class Gamma(AbstractDistribution):
         return alpha
 
     @staticmethod
-    def _compute_beta_mme(X: np.ndarray) -> float:
+    def compute_beta_mme(X: np.ndarray) -> float:
         """
         Compute mixed type log-moment estimator for parameter beta.
 

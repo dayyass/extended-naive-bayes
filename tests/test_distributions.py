@@ -116,7 +116,7 @@ class TestGeometric(unittest.TestCase):
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_X(self):
-        dist = Geometric(n=self.n)
+        dist = Geometric()
         dist.fit(self.X)
 
         pred = dist.prob
@@ -125,7 +125,7 @@ class TestGeometric(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
     def test_prob_X_y(self):
-        dist = Geometric(n=self.n)
+        dist = Geometric()
         dist.fit(self.X, self.y)
 
         pred = dist.prob
