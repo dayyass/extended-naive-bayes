@@ -2,16 +2,17 @@ import unittest
 
 import numpy as np
 
-from distributions import Bernoulli, Binomial, Categorical, Geometric, Poisson
+from distributions import Bernoulli, Binomial, Categorical, Gaussian, Geometric, Poisson
 
 np.random.seed(42)
 
 
 class TestBernoulli(unittest.TestCase):
 
+    n_samples = 1000
     n_classes = 2
-    X = np.random.randint(low=0, high=2, size=1000)
-    y = np.random.randint(low=0, high=n_classes, size=1000)
+    X = np.random.randint(low=0, high=2, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_X(self):
         dist = Bernoulli()
@@ -38,9 +39,10 @@ class TestBernoulli(unittest.TestCase):
 class TestCategorical(unittest.TestCase):
 
     k = 3
+    n_samples = 1000
     n_classes = 2
-    X = np.random.randint(low=0, high=k, size=1000)
-    y = np.random.randint(low=0, high=n_classes, size=1000)
+    X = np.random.randint(low=0, high=k, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_X(self):
         dist = Categorical(k=self.k)
@@ -70,9 +72,10 @@ class TestCategorical(unittest.TestCase):
 class TestBinomial(unittest.TestCase):
 
     n = 3
+    n_samples = 1000
     n_classes = 2
-    X = np.random.randint(low=0, high=n, size=1000)
-    y = np.random.randint(low=0, high=n_classes, size=1000)
+    X = np.random.randint(low=0, high=n, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_X(self):
         dist = Binomial(n=self.n)
@@ -99,9 +102,10 @@ class TestBinomial(unittest.TestCase):
 class TestGeometric(unittest.TestCase):
 
     n = 3
+    n_samples = 1000
     n_classes = 2
-    X = np.random.randint(low=0, high=n, size=1000)
-    y = np.random.randint(low=0, high=n_classes, size=1000)
+    X = np.random.randint(low=0, high=n, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_X(self):
         dist = Geometric(n=self.n)
@@ -128,9 +132,10 @@ class TestGeometric(unittest.TestCase):
 class TestPoisson(unittest.TestCase):
 
     n = 3
+    n_samples = 1000
     n_classes = 2
-    X = np.random.randint(low=0, high=n, size=1000)
-    y = np.random.randint(low=0, high=n_classes, size=1000)
+    X = np.random.randint(low=0, high=n, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_prob_X(self):
         dist = Poisson()
@@ -152,3 +157,39 @@ class TestPoisson(unittest.TestCase):
             true[cls] = self.X[self.y == cls].mean()
 
         self.assertTrue(np.allclose(pred, true))
+
+
+class TestGaussian(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randn(n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_prob_X(self):
+        dist = Gaussian()
+        dist.fit(self.X)
+
+        pred_1 = dist.mu
+        pred_2 = dist.sigma
+        true_1 = self.X.mean()
+        true_2 = self.X.std()
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
+
+    def test_prob_X_y(self):
+        dist = Gaussian()
+        dist.fit(self.X, self.y)
+
+        pred_1 = dist.mu
+        pred_2 = dist.sigma
+
+        true_1 = np.zeros(self.n_classes)
+        true_2 = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true_1[cls] = self.X[self.y == cls].mean()
+            true_2[cls] = self.X[self.y == cls].std()
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
