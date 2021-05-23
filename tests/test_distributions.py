@@ -232,4 +232,4 @@ class TestExponential(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
 
-# TODO: add Gamma tests
+# TODO: add Gamma and Beta tests

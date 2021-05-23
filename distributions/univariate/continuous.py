@@ -142,3 +142,67 @@ class Gamma(AbstractDistribution):
         beta = 1 / theta
 
         return beta
+
+
+class Beta(AbstractDistribution):
+    """
+    Beta distributions with parameters alpha and beta.
+    """
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+
+        self._check_univariate_input_data(X=X, y=y)
+
+        if y is None:
+            self.alpha = self.compute_alpha_mme(X)
+            self.beta = self.compute_beta_mme(X)
+        else:
+            n_classes = max(y) + 1
+            self.alpha = np.zeros(n_classes)
+            self.beta = np.zeros(n_classes)
+
+            for cls in range(n_classes):
+                self.alpha[cls] = self.compute_alpha_mme(X[y == cls])  # type: ignore
+                self.beta[cls] = self.compute_beta_mme(X[y == cls])  # type: ignore
+
+    @staticmethod
+    def compute_alpha_mme(X: np.ndarray) -> float:
+        """
+        Compute method of moments estimator for parameter alpha.
+
+        :param np.ndarray X: training data.
+        :return: method of moments estimator for parameter alpha.
+        :rtype: float
+        """
+
+        mean = X.mean()
+        var = X.var(ddof=1)  # unbiased estimator of the variance
+
+        # TODO: fix with mle
+        assert var < mean * (
+            1 - mean
+        ), "method of moments estimator conditions violated"
+
+        alpha = mean * (mean * (1 - mean) / var - 1)
+        return alpha
+
+    @staticmethod
+    def compute_beta_mme(X: np.ndarray) -> float:
+        """
+        Compute method of moments estimator for parameter beta.
+
+        :param np.ndarray X: training data.
+        :return: method of moments estimator for parameter beta.
+        :rtype: float
+        """
+
+        mean = X.mean()
+        var = X.var(ddof=1)  # unbiased estimator of the variance
+
+        # TODO: fix with mle
+        assert var < mean * (
+            1 - mean
+        ), "method of moments estimator conditions violated"
+
+        beta = (1 - mean) * (mean * (1 - mean) / var - 1)
+        return beta

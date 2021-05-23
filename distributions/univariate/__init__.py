@@ -1,4 +1,5 @@
 from distributions.univariate.continuous import (  # noqa: F401
+    Beta,
     Exponential,
     Gamma,
     Gaussian,
