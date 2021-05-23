@@ -4,6 +4,7 @@ import numpy as np
 from scipy import stats
 
 from distributions.abstract import AbstractDistribution
+from utils import to_categorical
 
 
 class Bernoulli(AbstractDistribution):
@@ -87,6 +88,28 @@ class Categorical(AbstractDistribution):
             for cls in range(n_classes):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls], k=self.k)  # type: ignore
 
+    def predict_log_proba(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X, y=y)
+
+        if y is None:
+            log_proba = stats.multinomial.logpmf(
+                to_categorical(X, num_classes=self.k), n=1, p=self.prob
+            )
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.prob)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = stats.multinomial.logpmf(
+                    to_categorical(X, num_classes=self.k), n=1, p=self.prob[cls]
+                )  # type: ignore
+
+        return log_proba
+
     @staticmethod
     def compute_prob_mle(X: np.ndarray, k: int) -> np.ndarray:
         """
@@ -98,8 +121,10 @@ class Categorical(AbstractDistribution):
         :rtype: np.ndarray
         """
 
-        prob = np.zeros(k)
+        assert k > 2, "for k = 2 use Bernoulli distribution."
+        Categorical._check_univariate_input_data(X=X)
 
+        prob = np.zeros(k)
         for x in X:
             prob[x] += 1
         prob /= prob.sum()
