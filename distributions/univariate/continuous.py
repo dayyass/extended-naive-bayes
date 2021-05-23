@@ -23,3 +23,20 @@ class Gaussian(AbstractDistribution):
             for cls in range(n_classes):
                 self.mu[cls] = X[y == cls].mean()
                 self.sigma[cls] = X[y == cls].std()
+
+
+class Exponential(AbstractDistribution):
+    """
+    Exponential distributions with parameter lambda.
+    """
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None):
+
+        if y is None:
+            self.lambda_ = 1 / X.mean()
+        else:
+            n_classes = max(y) + 1
+            self.lambda_ = np.zeros(n_classes)
+
+            for cls in range(n_classes):
+                self.lambda_[cls] = 1 / X[y == cls].mean()

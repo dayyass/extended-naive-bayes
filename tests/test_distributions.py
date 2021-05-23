@@ -2,7 +2,15 @@ import unittest
 
 import numpy as np
 
-from distributions import Bernoulli, Binomial, Categorical, Gaussian, Geometric, Poisson
+from distributions import (
+    Bernoulli,
+    Binomial,
+    Categorical,
+    Exponential,
+    Gaussian,
+    Geometric,
+    Poisson,
+)
 
 np.random.seed(42)
 
@@ -193,3 +201,32 @@ class TestGaussian(unittest.TestCase):
 
         self.assertTrue(np.allclose(pred_1, true_1))
         self.assertTrue(np.allclose(pred_2, true_2))
+
+
+class TestExponential(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randn(n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_prob_X(self):
+        dist = Exponential()
+        dist.fit(self.X)
+
+        pred = dist.lambda_
+        true = 1 / self.X.mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_prob_X_y(self):
+        dist = Exponential()
+        dist.fit(self.X, self.y)
+
+        pred = dist.lambda_
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = 1 / self.X[self.y == cls].mean()
+
+        self.assertTrue(np.allclose(pred, true))
