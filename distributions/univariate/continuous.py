@@ -6,9 +6,9 @@ from scipy import special, stats
 from distributions.abstract import AbstractDistribution
 
 
-class Gaussian(AbstractDistribution):
+class Normal(AbstractDistribution):
     """
-    Gaussian (Normal) distributions with parameters mu and sigma.
+    Normal (Gaussian) distribution with parameters mu and sigma.
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
@@ -72,7 +72,7 @@ class Gaussian(AbstractDistribution):
 
 class Exponential(AbstractDistribution):
     """
-    Exponential distributions with parameter lambda.
+    Exponential distribution with parameter lambda.
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
@@ -134,7 +134,7 @@ class Exponential(AbstractDistribution):
 
 class Gamma(AbstractDistribution):
     """
-    Gamma distributions with parameters alpha and beta.
+    Gamma distribution with parameters alpha and beta.
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
@@ -229,7 +229,7 @@ class Gamma(AbstractDistribution):
 
 class Beta(AbstractDistribution):
     """
-    Beta distributions with parameters alpha and beta.
+    Beta distribution with parameters alpha and beta.
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:

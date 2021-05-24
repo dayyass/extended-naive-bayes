@@ -9,7 +9,7 @@ from utils import to_categorical
 
 class Bernoulli(AbstractDistribution):
     """
-    Bernoulli distributions with parameter prob.
+    Bernoulli distribution with parameter prob.
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
@@ -59,7 +59,7 @@ class Bernoulli(AbstractDistribution):
 
 class Categorical(AbstractDistribution):
     """
-    Categorical distributions with parameters vector prob.
+    Categorical distribution with parameters vector prob.
     """
 
     def __init__(self, k: int) -> None:
@@ -130,7 +130,7 @@ class Categorical(AbstractDistribution):
 
 class Binomial(AbstractDistribution):
     """
-    Binomial distributions with parameter prob.
+    Binomial distribution with parameter prob.
     """
 
     def __init__(self, n: int) -> None:
@@ -193,7 +193,7 @@ class Binomial(AbstractDistribution):
 
 class Geometric(AbstractDistribution):
     """
-    Geometric distributions with parameter prob.
+    Geometric distribution with parameter prob.
     Probability distribution of the number X of Bernoulli trials needed to get one success.
     """
 
@@ -244,7 +244,7 @@ class Geometric(AbstractDistribution):
 
 class Poisson(AbstractDistribution):
     """
-    Poisson distributions with parameter lambda.
+    Poisson distribution with parameter lambda.
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:

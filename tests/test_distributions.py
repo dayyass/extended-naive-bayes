@@ -11,9 +11,10 @@ from distributions import (
     ContinuousUnivariateDistribution,
     Exponential,
     Gamma,
-    Gaussian,
     Geometric,
     Multinomial,
+    MultivariateNormal,
+    Normal,
     Poisson,
 )
 from utils import to_categorical
@@ -290,7 +291,7 @@ class TestGaussian(unittest.TestCase):
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_fit_X(self):
-        dist = Gaussian()
+        dist = Normal()
         dist.fit(self.X)
 
         pred_1 = dist.mu
@@ -302,7 +303,7 @@ class TestGaussian(unittest.TestCase):
         self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_predict_log_proba_X(self):
-        dist = Gaussian()
+        dist = Normal()
         dist.fit(self.X)
 
         pred = dist.predict_log_proba(self.X)
@@ -311,7 +312,7 @@ class TestGaussian(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
     def test_fit_X_y(self):
-        dist = Gaussian()
+        dist = Normal()
         dist.fit(self.X, self.y)
 
         pred_1 = dist.mu
@@ -327,7 +328,7 @@ class TestGaussian(unittest.TestCase):
         self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_predict_log_proba_X_y(self):
-        dist = Gaussian()
+        dist = Normal()
         dist.fit(self.X, self.y)
 
         pred = dist.predict_log_proba(self.X)
@@ -542,7 +543,7 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
         dist_1.fit(self.X_norm)
 
-        dist_2 = Gaussian()
+        dist_2 = Normal()
         dist_2.fit(self.X_norm)
 
         pred_1 = dist_1.distribution_params[0]  # mu
@@ -558,7 +559,7 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
         dist_1.fit(self.X_norm)
 
-        dist_2 = Gaussian()
+        dist_2 = Normal()
         dist_2.fit(self.X_norm)
 
         pred = dist_1.predict_log_proba(self.X_norm)
@@ -570,7 +571,7 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
         dist_1.fit(self.X_norm, self.y)
 
-        dist_2 = Gaussian()
+        dist_2 = Normal()
         dist_2.fit(self.X_norm, self.y)
 
         pred_1 = dist_1.distribution_params[:, 0]  # mu
@@ -586,7 +587,7 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
         dist_1.fit(self.X_norm, self.y)
 
-        dist_2 = Gaussian()
+        dist_2 = Normal()
         dist_2.fit(self.X_norm, self.y)
 
         pred = dist_1.predict_log_proba(self.X_norm)
@@ -678,5 +679,65 @@ class TestMultinomial(unittest.TestCase):
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
             true[:, cls] = stats.multinomial.logpmf(self.X, n=self.n, p=dist.prob[cls])
+
+        self.assertTrue(np.allclose(pred, true))
+
+
+class TestMultivariateNormal(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.multivariate_normal(mean=[0, 0, 0], cov=np.eye(3), size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_fit_X(self):
+        dist = MultivariateNormal()
+        dist.fit(self.X)
+
+        pred_1 = dist.mu
+        pred_2 = dist.sigma
+
+        true_1 = self.X.mean(axis=0)
+        true_2 = np.cov(self.X, rowvar=False, ddof=0)
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
+
+    def test_predict_log_proba_X(self):
+        dist = MultivariateNormal()
+        dist.fit(self.X)
+
+        pred = dist.predict_log_proba(self.X)
+        true = stats.multivariate_normal.logpdf(self.X, mean=dist.mu, cov=dist.sigma)
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_fit_X_y(self):
+        dist = MultivariateNormal()
+        dist.fit(self.X, self.y)
+
+        pred_1 = dist.mu
+        pred_2 = dist.sigma
+
+        true_1 = np.zeros((self.n_classes, self.X.shape[1]))
+        true_2 = np.zeros((self.n_classes, self.X.shape[1], self.X.shape[1]))
+        for cls in range(self.n_classes):
+            true_1[cls] = self.X[self.y == cls].mean(axis=0)
+            true_2[cls] = np.cov(self.X[self.y == cls], rowvar=False, ddof=0)
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
+
+    def test_predict_log_proba_X_y(self):
+        dist = MultivariateNormal()
+        dist.fit(self.X, self.y)
+
+        pred = dist.predict_log_proba(self.X)
+
+        true = np.zeros((self.X.shape[0], self.n_classes))
+        for cls in range(self.n_classes):
+            true[:, cls] = stats.multivariate_normal.logpdf(
+                self.X, mean=dist.mu[cls], cov=dist.sigma[cls]
+            )
 
         self.assertTrue(np.allclose(pred, true))

@@ -1,4 +1,4 @@
-from distributions.multivariate import Multinomial  # noqa: F401
+from distributions.multivariate import Multinomial, MultivariateNormal  # noqa: F401
 from distributions.univariate import (  # noqa: F401
     Bernoulli,
     Beta,
@@ -7,7 +7,7 @@ from distributions.univariate import (  # noqa: F401
     ContinuousUnivariateDistribution,
     Exponential,
     Gamma,
-    Gaussian,
     Geometric,
+    Normal,
     Poisson,
 )

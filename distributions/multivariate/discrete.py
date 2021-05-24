@@ -8,7 +8,7 @@ from distributions.abstract import AbstractDistribution
 
 class Multinomial(AbstractDistribution):
     """
-    Multinomial distributions with parameters n and vector prob.
+    Multinomial distribution with parameters n and vector prob.
     """
 
     def __init__(self, n: int) -> None:

@@ -8,7 +8,7 @@ from distributions.univariate.continuous import (  # noqa: F401
     Beta,
     Exponential,
     Gamma,
-    Gaussian,
+    Normal,
 )
 from distributions.univariate.discrete import (  # noqa: F401
     Bernoulli,
