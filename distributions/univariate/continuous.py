@@ -435,4 +435,6 @@ class Beta(AbstractDistribution):
         :param kwargs: additional distribution parameters.
         """
 
-        assert np.all(0 <= X <= 1), "x should be between 0 and 1 (both inclusive)."
+        assert np.all(
+            (X >= 0) & (X <= 1)
+        ), "x should be between 0 and 1 (both inclusive)."

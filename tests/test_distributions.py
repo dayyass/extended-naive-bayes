@@ -186,7 +186,7 @@ class TestGeometric(unittest.TestCase):
     n = 3
     n_samples = 1000
     n_classes = 2
-    X = np.random.randint(low=0, high=n, size=n_samples)
+    X = np.random.randint(low=1, high=n, size=n_samples)
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_fit_X(self):
