@@ -3,16 +3,21 @@ import unittest
 import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import BernoulliNB, GaussianNB, _BaseNB
+from sklearn.naive_bayes import BernoulliNB, CategoricalNB, GaussianNB, _BaseNB
 
 from distributions import Normal
-from models import BernoulliNaiveBayes, GaussianNaiveBayes, NaiveBayes
+from models import (
+    BernoulliNaiveBayes,
+    CategoricalNaiveBayes,
+    GaussianNaiveBayes,
+    NaiveBayes,
+)
 from models.abstract import AbstractModel
 
 np.random.seed(42)
 
 
-def compare_model_with_sklean(
+def _compare_model_with_sklean(
     model: AbstractModel,
     sklearn_model: _BaseNB,
     X: np.ndarray,
@@ -65,7 +70,7 @@ class TestNaiveBayes(unittest.TestCase):
         sklearn_model.fit(self.X_train, self.y_train)
 
         self.assertTrue(
-            compare_model_with_sklean(
+            _compare_model_with_sklean(
                 model,
                 sklearn_model,
                 self.X_train,
@@ -73,7 +78,7 @@ class TestNaiveBayes(unittest.TestCase):
             )
         )
         self.assertTrue(
-            compare_model_with_sklean(
+            _compare_model_with_sklean(
                 model,
                 sklearn_model,
                 self.X_test,
@@ -100,7 +105,7 @@ class TestGaussianNaiveBayes(unittest.TestCase):
         sklearn_model.fit(self.X_train, self.y_train)
 
         self.assertTrue(
-            compare_model_with_sklean(
+            _compare_model_with_sklean(
                 model,
                 sklearn_model,
                 self.X_train,
@@ -108,7 +113,7 @@ class TestGaussianNaiveBayes(unittest.TestCase):
             )
         )
         self.assertTrue(
-            compare_model_with_sklean(
+            _compare_model_with_sklean(
                 model,
                 sklearn_model,
                 self.X_test,
@@ -129,7 +134,7 @@ class TestBernoulliNaiveBayes(unittest.TestCase):
     def test_fit_sklearn(self):
 
         # our model
-        model = BernoulliNaiveBayes(n_features=self.X.shape[1])
+        model = BernoulliNaiveBayes(n_features=self.n_features)
         model.fit(self.X, self.y)
 
         # sklearn model
@@ -137,7 +142,39 @@ class TestBernoulliNaiveBayes(unittest.TestCase):
         sklearn_model.fit(self.X, self.y)
 
         self.assertTrue(
-            compare_model_with_sklean(
+            _compare_model_with_sklean(
+                model,
+                sklearn_model,
+                self.X,
+                self.y,
+            )
+        )
+
+
+# TODO: improve the model to work with alpha > 0
+class TestCategoricalNaiveBayes(unittest.TestCase):
+
+    n_samples = 1000
+    n_features = 5
+    n_categories = [10, 6, 8, 3, 4]
+    n_classes = 2
+    X = np.random.randint(2, size=(n_samples, n_features))
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_fit_sklearn(self):
+
+        # our model
+        model = CategoricalNaiveBayes(
+            n_features=self.n_features, n_categories=self.n_categories
+        )
+        model.fit(self.X, self.y)
+
+        # sklearn model
+        sklearn_model = CategoricalNB(alpha=0)
+        sklearn_model.fit(self.X, self.y)
+
+        self.assertTrue(
+            _compare_model_with_sklean(
                 model,
                 sklearn_model,
                 self.X,

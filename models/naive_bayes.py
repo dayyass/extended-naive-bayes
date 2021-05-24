@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from scipy.special import logsumexp
 
-from distributions import Bernoulli, Normal
+from distributions import Bernoulli, Categorical, Normal
 from distributions.abstract import AbstractDistribution
 from models.abstract import AbstractModel
 
@@ -110,6 +110,12 @@ class GaussianNaiveBayes(NaiveBayes):
     """
 
     def __init__(self, n_features: int) -> None:
+        """
+        Init model with {n_features} normal distributed features.
+
+        :param int n_features: number of features.
+        """
+
         super().__init__(distributions=[Normal() for _ in range(n_features)])
 
 
@@ -119,4 +125,32 @@ class BernoulliNaiveBayes(NaiveBayes):
     """
 
     def __init__(self, n_features: int) -> None:
+        """
+        Init model with {n_features} bernoulli distributed features.
+
+        :param int n_features: number of features.
+        """
+
         super().__init__(distributions=[Bernoulli() for _ in range(n_features)])
+
+
+class CategoricalNaiveBayes(NaiveBayes):
+    """
+    Naive Bayes model with categorical distributed features.
+    """
+
+    def __init__(self, n_features: int, n_categories: List[int]) -> None:
+        """
+        Init model with {n_features} categorical distributed features.
+
+        :param int n_features: number of features.
+        :param List[int] n_categories: number of categories for each feature.
+        """
+
+        assert (
+            len(n_categories) == n_features
+        ), "length of n_categories should be equal n_features."
+
+        super().__init__(
+            distributions=[Categorical(n_categories[i]) for i in range(n_features)]
+        )
