@@ -3,11 +3,12 @@ import unittest
 import numpy as np
 from scipy import stats
 
-from distributions import (  # Exponential,
+from distributions import (
     Bernoulli,
     Binomial,
     Categorical,
     ContinuousUnivariateDistribution,
+    Exponential,
     Gaussian,
     Geometric,
     Poisson,
@@ -337,40 +338,68 @@ class TestGaussian(unittest.TestCase):
         self.assertTrue(np.allclose(pred, true))
 
 
-#
-#
-# class TestExponential(unittest.TestCase):
-#
-#     n_samples = 1000
-#     n_classes = 2
-#     X = np.random.randn(n_samples)
-#     y = np.random.randint(low=0, high=n_classes, size=n_samples)
-#
-#     def test_fit_X(self):
-#         dist = Exponential()
-#         dist.fit(self.X)
-#
-#         pred = dist.lambda_
-#         true = 1 / self.X.mean()
-#
-#         self.assertTrue(np.allclose(pred, true))
-#
-#     def test_fit_X_y(self):
-#         dist = Exponential()
-#         dist.fit(self.X, self.y)
-#
-#         pred = dist.lambda_
-#
-#         true = np.zeros(self.n_classes)
-#         for cls in range(self.n_classes):
-#             true[cls] = 1 / self.X[self.y == cls].mean()
-#
-#         self.assertTrue(np.allclose(pred, true))
-#
-#
-# # TODO: add Gamma and Beta tests (also for TestContinuousUnivariateDistribution)
-#
-#
+class TestExponential(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.exponential(scale=2, size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_fit_X(self):
+        dist = Exponential()
+        dist.fit(self.X)
+
+        pred = dist.lambda_
+        true = 1 / self.X.mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X(self):
+        dist = Exponential()
+        dist.fit(self.X)
+
+        pred = dist.predict_log_proba(self.X)
+        true = Exponential.logpdf(self.X, lambda_=dist.lambda_)
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_fit_X_y(self):
+        dist = Exponential()
+        dist.fit(self.X, self.y)
+
+        pred = dist.lambda_
+
+        true = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true[cls] = 1 / self.X[self.y == cls].mean()
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X_y(self):
+        dist = Exponential()
+        dist.fit(self.X, self.y)
+
+        pred = dist.predict_log_proba(self.X)
+
+        true = np.zeros((self.X.shape[0], self.n_classes))
+        for cls in range(self.n_classes):
+            true[:, cls] = Exponential.logpdf(self.X, lambda_=dist.lambda_[cls])
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_logpdf(self):
+        dist = Exponential()
+        dist.fit(self.X)
+
+        pred = Exponential.logpdf(self.X, lambda_=dist.lambda_)
+        true = stats.expon.logpdf(self.X, scale=1 / dist.lambda_)
+
+        self.assertTrue(np.allclose(pred, true))
+
+
+# TODO: add Gamma and Beta tests (also for TestContinuousUnivariateDistribution)
+
+
 class TestContinuousUnivariateDistribution(unittest.TestCase):
 
     n_samples = 1000

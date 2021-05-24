@@ -88,6 +88,22 @@ class Exponential(AbstractDistribution):
             for cls in range(n_classes):
                 self.lambda_[cls] = self.compute_lambda_mle(X[y == cls])  # type: ignore
 
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X)
+
+        if not isinstance(self.lambda_, np.ndarray):
+            log_proba = self.logpdf(X, lambda_=self.lambda_)
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.lambda_)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = self.logpdf(X, lambda_=self.lambda_[cls])  # type: ignore
+
+        return log_proba
+
     @staticmethod
     def compute_lambda_mle(X: np.ndarray) -> float:
         """
@@ -100,6 +116,20 @@ class Exponential(AbstractDistribution):
 
         lambda_ = 1 / X.mean()
         return lambda_
+
+    @staticmethod
+    def logpdf(X: np.ndarray, lambda_: float) -> np.ndarray:
+        """
+        Compute log of the probability density function at X.
+
+        :param np.ndarray  X: training data.
+        :param float lambda_: parameter lambda.
+        :return: log of the probability density function at X.
+        :rtype: np.ndarray
+        """
+
+        logpdf = np.log(lambda_) - lambda_ * X
+        return logpdf
 
 
 class Gamma(AbstractDistribution):
