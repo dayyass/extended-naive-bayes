@@ -1,7 +1,7 @@
 from typing import Optional
 
 import numpy as np
-from scipy import stats
+from scipy import special, stats
 
 from distributions.abstract import AbstractDistribution
 
@@ -153,6 +153,22 @@ class Gamma(AbstractDistribution):
                 self.alpha[cls] = self.compute_alpha_mme(X[y == cls])  # type: ignore
                 self.beta[cls] = self.compute_beta_mme(X[y == cls])  # type: ignore
 
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X)
+
+        if not isinstance(self.alpha, np.ndarray):
+            log_proba = self.logpdf(X, alpha=self.alpha, beta=self.beta)
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.alpha)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = self.logpdf(X, alpha=self.alpha[cls], beta=self.beta[cls])  # type: ignore
+
+        return log_proba
+
     @staticmethod
     def compute_alpha_mme(X: np.ndarray) -> float:
         """
@@ -189,6 +205,26 @@ class Gamma(AbstractDistribution):
         beta = 1 / theta
 
         return beta
+
+    @staticmethod
+    def logpdf(X: np.ndarray, alpha: float, beta: float) -> np.ndarray:
+        """
+        Compute log of the probability density function at X.
+
+        :param np.ndarray  X: training data.
+        :param float alpha: parameter alpha.
+        :param float beta: parameter beta.
+        :return: log of the probability density function at X.
+        :rtype: np.ndarray
+        """
+
+        logpdf = (
+            alpha * np.log(beta)
+            - special.loggamma(alpha)
+            + (alpha - 1) * np.log(X)
+            - beta * X
+        )
+        return logpdf
 
 
 class Beta(AbstractDistribution):
