@@ -3,7 +3,7 @@ from typing import Optional
 import numpy as np
 from scipy import stats
 
-from distributions.abstract import AbstractDistribution
+from naive_bayes.distributions.abstract import AbstractDistribution
 from utils import isinteger, to_categorical
 
 

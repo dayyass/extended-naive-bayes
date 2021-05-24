@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from scipy import stats
 
-from distributions import (
+from naive_bayes.distributions import (
     Bernoulli,
     Beta,
     Binomial,

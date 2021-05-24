@@ -3,9 +3,9 @@ from typing import List
 import numpy as np
 from scipy.special import logsumexp
 
-from distributions import Bernoulli, Categorical, Normal
-from distributions.abstract import AbstractDistribution
-from models.abstract import AbstractModel
+from naive_bayes.distributions import Bernoulli, Categorical, Normal
+from naive_bayes.distributions.abstract import AbstractDistribution
+from naive_bayes.models.abstract import AbstractModel
 
 
 class NaiveBayes(AbstractModel):

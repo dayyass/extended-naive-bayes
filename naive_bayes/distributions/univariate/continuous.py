@@ -3,7 +3,7 @@ from typing import Optional
 import numpy as np
 from scipy import special, stats
 
-from distributions.abstract import AbstractDistribution
+from naive_bayes.distributions.abstract import AbstractDistribution
 
 
 class Normal(AbstractDistribution):

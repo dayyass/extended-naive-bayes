@@ -5,14 +5,14 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import BernoulliNB, CategoricalNB, GaussianNB, _BaseNB
 
-from distributions import Normal
-from models import (
+from naive_bayes.distributions import Normal
+from naive_bayes.models import (
     BernoulliNaiveBayes,
     CategoricalNaiveBayes,
     GaussianNaiveBayes,
     NaiveBayes,
 )
-from models.abstract import AbstractModel
+from naive_bayes.models.abstract import AbstractModel
 
 np.random.seed(42)
 

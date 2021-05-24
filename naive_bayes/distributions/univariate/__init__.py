@@ -3,14 +3,14 @@ from typing import Optional
 import numpy as np
 from scipy.stats import rv_continuous
 
-from distributions.abstract import AbstractDistribution
-from distributions.univariate.continuous import (  # noqa: F401
+from naive_bayes.distributions.abstract import AbstractDistribution
+from naive_bayes.distributions.univariate.continuous import (  # noqa: F401
     Beta,
     Exponential,
     Gamma,
     Normal,
 )
-from distributions.univariate.discrete import (  # noqa: F401
+from naive_bayes.distributions.univariate.discrete import (  # noqa: F401
     Bernoulli,
     Binomial,
     Categorical,
