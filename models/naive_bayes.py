@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from scipy.special import logsumexp
 
-from distributions import Normal
+from distributions import Bernoulli, Normal
 from distributions.abstract import AbstractDistribution
 from models.abstract import AbstractModel
 
@@ -111,3 +111,12 @@ class GaussianNaiveBayes(NaiveBayes):
 
     def __init__(self, n_features: int) -> None:
         super().__init__(distributions=[Normal() for _ in range(n_features)])
+
+
+class BernoulliNaiveBayes(NaiveBayes):
+    """
+    Naive Bayes model with bernoulli distributed features.
+    """
+
+    def __init__(self, n_features: int) -> None:
+        super().__init__(distributions=[Bernoulli() for _ in range(n_features)])

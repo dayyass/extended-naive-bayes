@@ -4,6 +4,7 @@ from typing import List, Optional
 import numpy as np
 
 from distributions.abstract import AbstractDistribution
+from utils import isinteger
 
 
 # TODO: compare with sklearn
@@ -89,3 +90,5 @@ class AbstractModel(ABC):
         ), "number of features should be equal to the number of distributions"
         if y is not None:
             assert y.ndim == 1, "y should be a 1d vector."
+            assert min(y) == 0, "y labels should starts with 0."
+            assert isinteger(y), "y should be integer vector."

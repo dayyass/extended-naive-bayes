@@ -1,1 +1,5 @@
-from models.naive_bayes import GaussianNaiveBayes, NaiveBayes  # noqa: F401
+from models.naive_bayes import (  # noqa: F401
+    BernoulliNaiveBayes,
+    GaussianNaiveBayes,
+    NaiveBayes,
+)

@@ -3,6 +3,8 @@ from typing import Optional
 
 import numpy as np
 
+from utils import isinteger
+
 
 # TODO: hide from user
 class AbstractDistribution(ABC):
@@ -49,6 +51,8 @@ class AbstractDistribution(ABC):
 
         if y is not None:
             assert y.ndim == 1, "y should be a 1d vector."
+            assert min(y) == 0, "y labels should starts with 0."
+            assert isinteger(y), "y should be integer vector."
 
     @staticmethod
     @abstractmethod
