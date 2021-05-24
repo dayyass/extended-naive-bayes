@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 
 from naive_bayes.distributions.abstract import AbstractDistribution
-from utils import isinteger, to_categorical
+from naive_bayes.utils import isinteger, to_categorical
 
 
 class Bernoulli(AbstractDistribution):

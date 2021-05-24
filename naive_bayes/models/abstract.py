@@ -4,7 +4,7 @@ from typing import List, Optional
 import numpy as np
 
 from naive_bayes.distributions.abstract import AbstractDistribution
-from utils import isinteger
+from naive_bayes.utils import isinteger
 
 
 # TODO: compare with sklearn

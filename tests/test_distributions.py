@@ -17,7 +17,7 @@ from naive_bayes.distributions import (
     Normal,
     Poisson,
 )
-from utils import to_categorical
+from naive_bayes.utils import to_categorical
 
 np.random.seed(42)
 

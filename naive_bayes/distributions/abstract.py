@@ -3,7 +3,7 @@ from typing import Optional
 
 import numpy as np
 
-from utils import isinteger
+from naive_bayes.utils import isinteger
 
 
 # TODO: hide from user
