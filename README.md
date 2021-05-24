@@ -56,7 +56,7 @@ model.predict(X_test)
 ```
 
 #### Example 3: Categorical distributed data
-```
+```python3
 import numpy as np
 from sklearn.model_selection import train_test_split
 
