@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 from scipy.special import logsumexp
 
+from distributions import Normal
 from distributions.abstract import AbstractDistribution
 from models.abstract import AbstractModel
 
@@ -101,3 +102,12 @@ class NaiveBayes(AbstractModel):
         self._check_input_data(X=X, y=y)
 
         return np.mean(self.predict(X) == y)
+
+
+class GaussianNaiveBayes(NaiveBayes):
+    """
+    Naive Bayes model with normal distributed features.
+    """
+
+    def __init__(self, n_features: int) -> None:
+        super().__init__(distributions=[Normal() for _ in range(n_features)])
