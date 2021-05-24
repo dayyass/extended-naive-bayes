@@ -12,8 +12,15 @@ class MultivariateNormal(AbstractDistribution):
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y, univariate=False)
+        self._check_support(X=X)
 
         if y is None:
             self.mu = self.compute_mu_mle(X)
@@ -28,8 +35,16 @@ class MultivariateNormal(AbstractDistribution):
                 self.sigma[cls] = self.compute_sigma_mle(X[y == cls])  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X, univariate=False)
+        self._check_support(X=X)
 
         if self.mu.ndim == 1:
             log_proba = stats.multivariate_normal.logpdf(
@@ -56,6 +71,7 @@ class MultivariateNormal(AbstractDistribution):
         """
 
         MultivariateNormal._check_input_data(X=X, univariate=False)
+        MultivariateNormal._check_support(X=X)
 
         mu = X.mean(axis=0)
         return mu
@@ -71,7 +87,19 @@ class MultivariateNormal(AbstractDistribution):
         """
 
         MultivariateNormal._check_input_data(X=X, univariate=False)
+        MultivariateNormal._check_support(X=X)
 
         mu = X.mean(axis=0)
         sigma = (X - mu).T @ (X - mu) / X.shape[0]
         return sigma
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        pass

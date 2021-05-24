@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 
 from distributions.abstract import AbstractDistribution
-from utils import to_categorical
+from utils import isinteger, to_categorical
 
 
 class Bernoulli(AbstractDistribution):
@@ -13,8 +13,15 @@ class Bernoulli(AbstractDistribution):
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y)
+        self._check_support(X=X)
 
         if y is None:
             self.prob = self.compute_prob_mle(X)
@@ -26,8 +33,16 @@ class Bernoulli(AbstractDistribution):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls])  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X)
+        self._check_support(X=X)
 
         if not isinstance(self.prob, np.ndarray):
             log_proba = stats.bernoulli.logpmf(X, p=self.prob)
@@ -52,9 +67,21 @@ class Bernoulli(AbstractDistribution):
         """
 
         Bernoulli._check_input_data(X=X)
+        Bernoulli._check_support(X=X)
 
         prob = X.mean()
         return prob
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        assert ((X == 0) | (X == 1)).all(), "x should be equal to 0 or 1."
 
 
 class Categorical(AbstractDistribution):
@@ -74,8 +101,15 @@ class Categorical(AbstractDistribution):
         self.k = k
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y)
+        self._check_support(X=X, k=self.k)
 
         if y is None:
             self.prob = self.compute_prob_mle(X, k=self.k)
@@ -87,8 +121,16 @@ class Categorical(AbstractDistribution):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls], k=self.k)  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X)
+        self._check_support(X=X, k=self.k)
 
         if self.prob.ndim == 1:
             log_proba = stats.multinomial.logpmf(
@@ -119,6 +161,7 @@ class Categorical(AbstractDistribution):
 
         assert k > 2, "for k = 2 use Bernoulli distribution."
         Categorical._check_input_data(X=X)
+        Categorical._check_support(X=X, k=k)
 
         prob = np.zeros(k)
         for x in X:
@@ -126,6 +169,23 @@ class Categorical(AbstractDistribution):
         prob /= prob.sum()
 
         return prob
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        X_union = (X == 0) | (X == 1)
+        for k in range(2, kwargs["k"]):
+            X_union = X_union | (X == k)
+
+        assert (
+            X_union.all()
+        ), f"x should be equal to integer from 0 to {kwargs['k']} (exclusive)."
 
 
 class Binomial(AbstractDistribution):
@@ -145,8 +205,15 @@ class Binomial(AbstractDistribution):
         self.n = n
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y)
+        self._check_support(X=X, n=self.n)
 
         if y is None:
             self.prob = self.compute_prob_mle(X, n=self.n)
@@ -158,8 +225,16 @@ class Binomial(AbstractDistribution):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls], n=self.n)  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X)
+        self._check_support(X=X, n=self.n)
 
         if not isinstance(self.prob, np.ndarray):
             log_proba = stats.binom.logpmf(X, n=self.n, p=self.prob)
@@ -185,10 +260,28 @@ class Binomial(AbstractDistribution):
         """
 
         assert n > 1, "for n = 1 use Bernoulli distribution."
-        Categorical._check_input_data(X=X)
+        Binomial._check_input_data(X=X)
+        Binomial._check_support(X=X, n=n)
 
         prob = X.mean() / n
         return prob
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        X_union = (X == 0) | (X == 1)
+        for k in range(2, kwargs["n"] + 1):
+            X_union = X_union | (X == k)
+
+        assert (
+            X_union.all()
+        ), f"x should be equal to integer from 0 to {kwargs['n']} (inclusive)."
 
 
 class Geometric(AbstractDistribution):
@@ -198,8 +291,15 @@ class Geometric(AbstractDistribution):
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y)
+        self._check_support(X=X)
 
         if y is None:
             self.prob = self.compute_prob_mle(X)
@@ -211,8 +311,16 @@ class Geometric(AbstractDistribution):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls])  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X)
+        self._check_support(X=X)
 
         if not isinstance(self.prob, np.ndarray):
             log_proba = stats.geom.logpmf(X, p=self.prob)
@@ -237,9 +345,21 @@ class Geometric(AbstractDistribution):
         """
 
         Geometric._check_input_data(X=X)
+        Geometric._check_support(X=X)
 
         prob = 1 / X.mean()
         return prob
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        assert (X > 0).all() & isinteger(X), "x should be greater then 0 and integer."
 
 
 class Poisson(AbstractDistribution):
@@ -248,8 +368,15 @@ class Poisson(AbstractDistribution):
     """
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y)
+        self._check_support(X=X)
 
         if y is None:
             self.lambda_ = self.compute_lambda_mle(X)
@@ -261,8 +388,16 @@ class Poisson(AbstractDistribution):
                 self.lambda_[cls] = self.compute_lambda_mle(X[y == cls])  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X)
+        self._check_support(X=X)
 
         if not isinstance(self.lambda_, np.ndarray):
             log_proba = stats.poisson.logpmf(X, mu=self.lambda_)
@@ -287,6 +422,20 @@ class Poisson(AbstractDistribution):
         """
 
         Poisson._check_input_data(X=X)
+        Poisson._check_support(X=X)
 
         lambda_ = X.mean()
         return lambda_
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        assert (X >= 0).all() & isinteger(
+            X
+        ), "x should be greater or equal to 0 and integer."

@@ -35,8 +35,15 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
         self.distribution = distribution
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y)
+        self._check_support(X=X)
 
         if y is None:
             self.distribution_params = self.distribution.fit(X)
@@ -50,8 +57,16 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
             self.distribution_params = np.array(self.distribution_params)
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X)
+        self._check_support(X=X)
 
         if not isinstance(self.distribution_params, np.ndarray):
             log_proba = self.distribution.logpdf(X, *self.distribution_params)
@@ -64,3 +79,14 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
                 log_proba[:, cls] = self.distribution.logpdf(X, *self.distribution_params[cls])  # type: ignore
 
         return log_proba
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        pass

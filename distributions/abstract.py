@@ -25,7 +25,7 @@ class AbstractDistribution(ABC):
         """
         Method to compute log probabilities given X (data).
 
-        :param np.ndarray X: training data.
+        :param np.ndarray X: data.
         :return: log probabilities for X.
         :rtype: np.ndarray
         """
@@ -36,9 +36,9 @@ class AbstractDistribution(ABC):
         X: np.ndarray, y: Optional[np.ndarray] = None, univariate: bool = True
     ) -> None:
         """
-        Method to check correctness of input data to fit method for univariate distributions.
+        Method to check correctness of input data X and y.
 
-        :param np.ndarray X: training data.
+        :param np.ndarray X: data.
         :param Optional[np.ndarray] y: target values.
         """
 
@@ -49,3 +49,14 @@ class AbstractDistribution(ABC):
 
         if y is not None:
             assert y.ndim == 1, "y should be a 1d vector."
+
+    @staticmethod
+    @abstractmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+        pass

@@ -23,8 +23,15 @@ class Multinomial(AbstractDistribution):
         self.n = n
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Method to compute MLE given X (data). If y is provided, computes MLE of X for each class y.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
 
         self._check_input_data(X=X, y=y, univariate=False)
+        self._check_support(X=X)
 
         if y is None:
             self.prob = self.compute_prob_mle(X, n=self.n)
@@ -36,8 +43,16 @@ class Multinomial(AbstractDistribution):
                 self.prob[cls] = self.compute_prob_mle(X[y == cls], n=self.n)  # type: ignore
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute log probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: log probabilities for X.
+        :rtype: np.ndarray
+        """
 
         self._check_input_data(X=X, univariate=False)
+        self._check_support(X=X)
 
         if self.prob.ndim == 1:
             log_proba = stats.multinomial.logpmf(X, n=self.n, p=self.prob)
@@ -64,6 +79,19 @@ class Multinomial(AbstractDistribution):
 
         assert n > 1, "for n = 1 use Categorical distribution."
         Multinomial._check_input_data(X=X, univariate=False)
+        Multinomial._check_support(X=X)
 
         prob = X.mean(axis=0) / n
         return prob
+
+    # TODO: fix
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        pass
