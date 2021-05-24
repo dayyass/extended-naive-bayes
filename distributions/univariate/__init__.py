@@ -36,7 +36,7 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.distribution_params = self.distribution.fit(X)
@@ -51,7 +51,7 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.distribution_params, np.ndarray):
             log_proba = self.distribution.logpdf(X, *self.distribution_params)

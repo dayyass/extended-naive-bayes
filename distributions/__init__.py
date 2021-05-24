@@ -1,3 +1,4 @@
+from distributions.multivariate import Multinomial  # noqa: F401
 from distributions.univariate import (  # noqa: F401
     Bernoulli,
     Beta,

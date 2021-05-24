@@ -13,6 +13,7 @@ from distributions import (
     Gamma,
     Gaussian,
     Geometric,
+    Multinomial,
     Poisson,
 )
 from utils import to_categorical
@@ -623,3 +624,59 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
 #     #
 #     # def test_predict_log_proba_exponential_X_y(self):
 #     #     pass
+
+
+class TestMultinomial(unittest.TestCase):
+
+    n = 3
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.multinomial(n=n, pvals=[1 / 3, 1 / 3, 1 / 3], size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    # # TODO
+    # def test_fit_X(self):
+    #     dist = Multinomial(n=self.n)
+    #     dist.fit(self.X)
+    #
+    #     pred = dist.prob
+    #
+    #     _, counts = np.unique(self.X, return_counts=True)
+    #     true = counts / counts.sum()
+    #
+    #     self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X(self):
+        dist = Multinomial(n=self.n)
+        dist.fit(self.X)
+
+        pred = dist.predict_log_proba(self.X)
+        true = stats.multinomial.logpmf(self.X, n=self.n, p=dist.prob)
+
+        self.assertTrue(np.allclose(pred, true))
+
+    # # TODO
+    # def test_fit_X_y(self):
+    #     dist = Multinomial(n=self.n)
+    #     dist.fit(self.X, self.y)
+    #
+    #     pred = dist.prob
+    #
+    #     true = np.zeros((self.n_classes, self.k))
+    #     for cls in range(self.n_classes):
+    #         _, counts = np.unique(self.X[self.y == cls], return_counts=True)
+    #         true[cls] = counts / counts.sum()
+    #
+    #     self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_X_y(self):
+        dist = Multinomial(n=self.n)
+        dist.fit(self.X, self.y)
+
+        pred = dist.predict_log_proba(self.X)
+
+        true = np.zeros((self.X.shape[0], self.n_classes))
+        for cls in range(self.n_classes):
+            true[:, cls] = stats.multinomial.logpmf(self.X, n=self.n, p=dist.prob[cls])
+
+        self.assertTrue(np.allclose(pred, true))

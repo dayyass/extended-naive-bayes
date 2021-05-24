@@ -14,7 +14,7 @@ class Bernoulli(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.prob = self.compute_prob_mle(X)
@@ -27,7 +27,7 @@ class Bernoulli(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.prob, np.ndarray):
             log_proba = stats.bernoulli.logpmf(X, p=self.prob)
@@ -51,7 +51,7 @@ class Bernoulli(AbstractDistribution):
         :rtype: float
         """
 
-        Bernoulli._check_univariate_input_data(X=X)
+        Bernoulli._check_input_data(X=X)
 
         prob = X.mean()
         return prob
@@ -75,7 +75,7 @@ class Categorical(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.prob = self.compute_prob_mle(X, k=self.k)
@@ -88,7 +88,7 @@ class Categorical(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if self.prob.ndim == 1:
             log_proba = stats.multinomial.logpmf(
@@ -118,7 +118,7 @@ class Categorical(AbstractDistribution):
         """
 
         assert k > 2, "for k = 2 use Bernoulli distribution."
-        Categorical._check_univariate_input_data(X=X)
+        Categorical._check_input_data(X=X)
 
         prob = np.zeros(k)
         for x in X:
@@ -146,7 +146,7 @@ class Binomial(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.prob = self.compute_prob_mle(X, n=self.n)
@@ -159,7 +159,7 @@ class Binomial(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.prob, np.ndarray):
             log_proba = stats.binom.logpmf(X, n=self.n, p=self.prob)
@@ -185,7 +185,7 @@ class Binomial(AbstractDistribution):
         """
 
         assert n > 1, "for n = 1 use Bernoulli distribution."
-        Categorical._check_univariate_input_data(X=X)
+        Categorical._check_input_data(X=X)
 
         prob = X.mean() / n
         return prob
@@ -199,7 +199,7 @@ class Geometric(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.prob = self.compute_prob_mle(X)
@@ -212,7 +212,7 @@ class Geometric(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.prob, np.ndarray):
             log_proba = stats.geom.logpmf(X, p=self.prob)
@@ -236,7 +236,7 @@ class Geometric(AbstractDistribution):
         :rtype: float
         """
 
-        Geometric._check_univariate_input_data(X=X)
+        Geometric._check_input_data(X=X)
 
         prob = 1 / X.mean()
         return prob
@@ -249,7 +249,7 @@ class Poisson(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.lambda_ = self.compute_lambda_mle(X)
@@ -262,7 +262,7 @@ class Poisson(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.lambda_, np.ndarray):
             log_proba = stats.poisson.logpmf(X, mu=self.lambda_)
@@ -286,7 +286,7 @@ class Poisson(AbstractDistribution):
         :rtype: float
         """
 
-        Poisson._check_univariate_input_data(X=X)
+        Poisson._check_input_data(X=X)
 
         lambda_ = X.mean()
         return lambda_

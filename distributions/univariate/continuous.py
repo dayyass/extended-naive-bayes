@@ -13,7 +13,7 @@ class Gaussian(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.mu = self.compute_mu_mle(X)
@@ -29,7 +29,7 @@ class Gaussian(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.mu, np.ndarray):
             log_proba = stats.norm.logpdf(X, loc=self.mu, scale=self.sigma)
@@ -77,7 +77,7 @@ class Exponential(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.lambda_ = self.compute_lambda_mle(X)
@@ -90,7 +90,7 @@ class Exponential(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.lambda_, np.ndarray):
             log_proba = self.logpdf(X, lambda_=self.lambda_)
@@ -139,7 +139,7 @@ class Gamma(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.alpha = self.compute_alpha_mme(X)
@@ -155,7 +155,7 @@ class Gamma(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.alpha, np.ndarray):
             log_proba = self.logpdf(X, alpha=self.alpha, beta=self.beta)
@@ -234,7 +234,7 @@ class Beta(AbstractDistribution):
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
 
-        self._check_univariate_input_data(X=X, y=y)
+        self._check_input_data(X=X, y=y)
 
         if y is None:
             self.alpha = self.compute_alpha_mme(X)
@@ -250,7 +250,7 @@ class Beta(AbstractDistribution):
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
 
-        self._check_univariate_input_data(X=X)
+        self._check_input_data(X=X)
 
         if not isinstance(self.alpha, np.ndarray):
             log_proba = stats.beta.logpdf(X, a=self.alpha, b=self.beta)

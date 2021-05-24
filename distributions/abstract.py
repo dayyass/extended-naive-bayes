@@ -32,8 +32,8 @@ class AbstractDistribution(ABC):
         pass
 
     @staticmethod
-    def _check_univariate_input_data(
-        X: np.ndarray, y: Optional[np.ndarray] = None
+    def _check_input_data(
+        X: np.ndarray, y: Optional[np.ndarray] = None, univariate: bool = True
     ) -> None:
         """
         Method to check correctness of input data to fit method for univariate distributions.
@@ -42,6 +42,10 @@ class AbstractDistribution(ABC):
         :param Optional[np.ndarray] y: target values.
         """
 
-        assert X.ndim == 1, "X should be a 1d vector."
+        if univariate:
+            assert X.ndim == 1, "X should be a 1d vector."
+        else:
+            assert X.ndim == 2, "X should be a 2d matrix."
+
         if y is not None:
             assert y.ndim == 1, "y should be a 1d vector."
