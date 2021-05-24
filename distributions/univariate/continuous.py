@@ -248,6 +248,22 @@ class Beta(AbstractDistribution):
                 self.alpha[cls] = self.compute_alpha_mme(X[y == cls])  # type: ignore
                 self.beta[cls] = self.compute_beta_mme(X[y == cls])  # type: ignore
 
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X)
+
+        if not isinstance(self.alpha, np.ndarray):
+            log_proba = stats.beta.logpdf(X, a=self.alpha, b=self.beta)
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.alpha)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = stats.beta.logpdf(X, a=self.alpha[cls], b=self.beta[cls])  # type: ignore
+
+        return log_proba
+
     @staticmethod
     def compute_alpha_mme(X: np.ndarray) -> float:
         """

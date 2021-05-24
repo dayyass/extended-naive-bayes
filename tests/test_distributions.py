@@ -5,6 +5,7 @@ from scipy import stats
 
 from distributions import (
     Bernoulli,
+    Beta,
     Binomial,
     Categorical,
     ContinuousUnivariateDistribution,
@@ -463,6 +464,66 @@ class TestGamma(unittest.TestCase):
 
         pred = Gamma.logpdf(self.X, alpha=dist.alpha, beta=dist.beta)
         true = stats.gamma.logpdf(self.X, a=dist.alpha, scale=1 / dist.beta)
+
+        self.assertTrue(np.allclose(pred, true))
+
+
+class TestBeta(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.uniform(size=n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    def test_fit_X(self):
+        dist = Beta()
+        dist.fit(self.X)
+
+        pred_1 = dist.alpha
+        pred_2 = dist.beta
+
+        true_1 = Beta.compute_alpha_mme(self.X)
+        true_2 = Beta.compute_beta_mme(self.X)
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
+
+    def test_predict_log_proba_X(self):
+        dist = Beta()
+        dist.fit(self.X)
+
+        pred = dist.predict_log_proba(self.X)
+        true = stats.beta.logpdf(self.X, a=dist.alpha, b=dist.beta)
+
+        self.assertTrue(np.allclose(pred, true))
+
+    def test_fit_X_y(self):
+        dist = Beta()
+        dist.fit(self.X, self.y)
+
+        pred_1 = dist.alpha
+        pred_2 = dist.beta
+
+        true_1 = np.zeros(self.n_classes)
+        true_2 = np.zeros(self.n_classes)
+        for cls in range(self.n_classes):
+            true_1[cls] = Beta.compute_alpha_mme(self.X[self.y == cls])
+            true_2[cls] = Beta.compute_beta_mme(self.X[self.y == cls])
+
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
+
+    def test_predict_log_proba_X_y(self):
+        dist = Beta()
+        dist.fit(self.X, self.y)
+
+        pred = dist.predict_log_proba(self.X)
+
+        true = np.zeros((self.X.shape[0], self.n_classes))
+        for cls in range(self.n_classes):
+            true[:, cls] = stats.beta.logpdf(
+                self.X, a=dist.alpha[cls], b=dist.beta[cls]
+            )
 
         self.assertTrue(np.allclose(pred, true))
 
