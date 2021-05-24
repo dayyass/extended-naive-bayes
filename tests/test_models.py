@@ -56,7 +56,7 @@ class TestNaiveBayes(unittest.TestCase):
 
     X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.5, random_state=0
+        X, y, test_size=0.25, random_state=0
     )
 
     def test_fit_normal_sklearn(self):
@@ -91,7 +91,7 @@ class TestGaussianNaiveBayes(unittest.TestCase):
 
     X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.5, random_state=0
+        X, y, test_size=0.25, random_state=0
     )
 
     def test_fit_sklearn(self):
@@ -158,7 +158,7 @@ class TestCategoricalNaiveBayes(unittest.TestCase):
     n_features = 5
     n_categories = [10, 6, 8, 3, 4]
     n_classes = 2
-    X = np.random.randint(2, size=(n_samples, n_features))
+    X = np.random.randint(n_categories, size=(n_samples, n_features))
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_fit_sklearn(self):
