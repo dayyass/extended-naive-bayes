@@ -4,7 +4,7 @@
 TODO
 
 ### Installation
-```
+```python3
 # clone repo
 git clone https://github.com/dayyass/naive_bayes.git
 
@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ### Usage
 #### Example 1: Normal distributed data
-```
+```python3
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
@@ -33,7 +33,7 @@ model.predict(X_test)
 ```
 
 #### Example 2: Bernoulli distributed data
-```
+```python3
 import numpy as np
 from sklearn.model_selection import train_test_split
 
