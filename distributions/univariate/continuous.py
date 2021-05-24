@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from scipy import stats
 
 from distributions.abstract import AbstractDistribution
 
@@ -25,6 +26,22 @@ class Gaussian(AbstractDistribution):
             for cls in range(n_classes):
                 self.mu[cls] = self.compute_mu_mle(X[y == cls])  # type: ignore
                 self.sigma[cls] = self.compute_sigma_mle(X[y == cls])  # type: ignore
+
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X)
+
+        if not isinstance(self.mu, np.ndarray):
+            log_proba = stats.norm.logpdf(X, loc=self.mu, scale=self.sigma)
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.mu)  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = stats.norm.logpdf(X, loc=self.mu[cls], scale=self.sigma[cls])  # type: ignore
+
+        return log_proba
 
     @staticmethod
     def compute_mu_mle(X: np.ndarray) -> float:

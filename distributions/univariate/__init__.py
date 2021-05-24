@@ -48,3 +48,19 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
                 self.distribution_params[cls] = self.distribution.fit(X[y == cls])
 
             self.distribution_params = np.array(self.distribution_params)
+
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+
+        self._check_univariate_input_data(X=X)
+
+        if not isinstance(self.distribution_params, np.ndarray):
+            log_proba = self.distribution.logpdf(X, *self.distribution_params)
+        else:
+            n_samples = X.shape[0]
+            n_classes = self.distribution_params.shape[0]  # type: ignore
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = self.distribution.logpdf(X, *self.distribution_params[cls])  # type: ignore
+
+        return log_proba
