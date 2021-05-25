@@ -68,7 +68,7 @@ class AbstractModel(ABC):
     @abstractmethod
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """
-        Return the mean accuracy on the given test data and labels.
+        Method to compute mean accuracy given X data and y labels.
 
         :param np.ndarray X: training data.
         :param np.ndarray y: target values.
