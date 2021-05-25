@@ -52,6 +52,53 @@ class TestReadme(unittest.TestCase):
         distribution.fit(X, y)
         distribution.predict_log_proba(X)
 
+    def test_distributions_example_3(self):
+
+        import numpy as np
+        from scipy import stats
+
+        from naive_bayes.distributions import ContinuousUnivariateDistribution
+
+        n_classes = 3
+        n_samples = 100
+        X = np.random.randn(n_samples)
+        y = np.random.randint(
+            low=0, high=n_classes, size=n_samples
+        )  # categorical feature
+
+        # if only X provided to fit method, then fit marginal distribution p(X)
+        distribution = ContinuousUnivariateDistribution(stats.norm)
+        distribution.fit(X)
+        distribution.predict_log_proba(X)
+
+        # if X and y provided to fit method, then fit conditional distribution p(X|y)
+        distribution = ContinuousUnivariateDistribution(stats.norm)
+        distribution.fit(X, y)
+        distribution.predict_log_proba(X)
+
+    def test_distributions_example_4(self):
+
+        import numpy as np
+
+        from naive_bayes.distributions import KernelDensityEstimator
+
+        n_classes = 3
+        n_samples = 100
+        X = np.random.randn(n_samples)
+        y = np.random.randint(
+            low=0, high=n_classes, size=n_samples
+        )  # categorical feature
+
+        # if only X provided to fit method, then fit marginal distribution p(X)
+        distribution = KernelDensityEstimator()
+        distribution.fit(X)
+        distribution.predict_log_proba(X)
+
+        # if X and y provided to fit method, then fit conditional distribution p(X|y)
+        distribution = KernelDensityEstimator()
+        distribution.fit(X, y)
+        distribution.predict_log_proba(X)
+
     def test_models_example_1(self):
 
         import numpy as np

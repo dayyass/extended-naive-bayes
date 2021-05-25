@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from scipy import stats
+from sklearn.neighbors import KernelDensity
 
 from naive_bayes.distributions import (
     Bernoulli,
@@ -12,6 +13,7 @@ from naive_bayes.distributions import (
     Exponential,
     Gamma,
     Geometric,
+    KernelDensityEstimator,
     Multinomial,
     MultivariateNormal,
     Normal,
@@ -625,6 +627,53 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
 #     #
 #     # def test_predict_log_proba_exponential_X_y(self):
 #     #     pass
+
+
+class TestKernelDensityEstimator(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randn(n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    bandwidth = [0.5, 1.0, 2.0]
+    kernel = ["gaussian", "linear"]
+
+    def test_predict_log_proba_gaussian_X(self):
+
+        for bandwidth in self.bandwidth:
+            for kernel in self.kernel:
+                with self.subTest():
+
+                    dist_1 = KernelDensityEstimator(bandwidth=bandwidth, kernel=kernel)
+                    dist_1.fit(self.X)
+
+                    dist_2 = KernelDensity(bandwidth=bandwidth, kernel=kernel)
+                    dist_2.fit(self.X[:, np.newaxis])
+
+                    pred = dist_1.predict_log_proba(self.X)
+                    true = dist_2.score_samples(self.X[:, np.newaxis])
+
+                    self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_gaussian_X_y(self):
+        for bandwidth in self.bandwidth:
+            for kernel in self.kernel:
+                with self.subTest():
+
+                    dist_1 = KernelDensityEstimator(bandwidth=bandwidth, kernel=kernel)
+                    dist_1.fit(self.X, self.y)
+
+                    pred = dist_1.predict_log_proba(self.X)
+
+                    true = np.zeros((self.X.shape[0], self.n_classes))
+                    for cls in range(self.n_classes):
+                        dist_2 = KernelDensity(bandwidth=bandwidth, kernel=kernel).fit(
+                            self.X[self.y == cls][:, np.newaxis]
+                        )
+                        true[:, cls] = dist_2.score_samples(self.X[:, np.newaxis])
+
+                    self.assertTrue(np.allclose(pred, true))
 
 
 class TestMultinomial(unittest.TestCase):
