@@ -2,6 +2,7 @@ from typing import Optional
 
 import numpy as np
 from scipy.stats import rv_continuous
+from sklearn.neighbors import KernelDensity
 
 from naive_bayes.distributions.abstract import AbstractDistribution
 from naive_bayes.distributions.univariate.continuous import (  # noqa: F401
@@ -77,6 +78,90 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
 
             for cls in range(n_classes):
                 log_proba[:, cls] = self.distribution.logpdf(X, *self.distribution_params[cls])  # type: ignore
+
+        return log_proba
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        pass
+
+
+# TODO: add to multivariate
+class KernelDensityEstimator(AbstractDistribution):
+    """
+    Kernel Density Estimation (Parzen–Rosenblatt window method) - non-parametric method.
+    """
+
+    def __init__(
+        self,
+        bandwidth: float = 1.0,
+        kernel: str = "gaussian",
+        metric: str = "euclidean",
+    ) -> None:
+        """
+        Init Kernel Density Model.
+
+        :param float bandwidth: The bandwidth of the kernel.
+        :param str kernel: The kernel to use.
+        :param str metric: The distance metric to use.
+        """
+
+        self.bandwidth = bandwidth
+        self.kernel = kernel
+        self.metric = metric
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Fit the Kernel Density model on the data.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
+
+        self._check_input_data(X=X, y=y)
+        self._check_support(X=X)
+
+        if y is None:
+            self.kde = KernelDensity(
+                bandwidth=self.bandwidth, kernel=self.kernel, metric=self.metric
+            ).fit(X[:, np.newaxis])
+        else:
+            n_classes = max(y) + 1
+            self.kde = n_classes * [0]
+
+            for cls in range(n_classes):
+                self.kde[cls] = KernelDensity(
+                    bandwidth=self.bandwidth, kernel=self.kernel, metric=self.metric
+                ).fit(X[y == cls][:, np.newaxis])
+
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Evaluate the log density model on the data.
+
+        :param np.ndarray X: data.
+        :return: log density on the data.
+        :rtype: np.ndarray
+        """
+
+        self._check_input_data(X=X)
+        self._check_support(X=X)
+
+        if not isinstance(self.kde, list):
+            log_proba = self.kde.score_samples(X[:, np.newaxis])
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.kde)
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = self.kde[cls].score_samples(X[:, np.newaxis])
 
         return log_proba
 

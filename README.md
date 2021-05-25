@@ -2,7 +2,8 @@
 
 ### Overview
 
-TODO
+TODO:
+TODO: add compare with sklearn (also in terms of interface)
 
 ### Installation
 
@@ -18,12 +19,12 @@ pip install -r requirements.txt
 ### Usage
 
 The repository consists two modules:
-1) `distributions` - contains different parametric distributions (univariate/multivariate, discrete/continuous) to fit into data;
+1) `distributions` - contains different parametric distributions (*univariate/multivariate*, *discrete/continuous*) to fit into data;
 2) `models` - contains different naive bayes models.
 
 #### 1. Distributions
 
-`distributions` module contains different parametric distributions (univariate/multivariate, discrete/continuous) to fit into data.
+`distributions` module contains different parametric distributions (*univariate/multivariate*, *discrete/continuous*) to fit into data.
 
 All distributions share the same interface (methods):
 - `.fit(X, y)` - compute MLE given `X` (data). If y is provided, computes MLE of `X` for each class `y`;
@@ -38,6 +39,10 @@ List of available distributions:
 **Univariate** | `Bernoulli`<br>`Binomial`<br>`Categorical`<br>`Geometric`<br>`Poisson` | `Normal`<br>`Exponential`<br>`Gamma`<br>`Beta`
 **Multivariate** | `Multinomial` | `MultivariateNormal`
 
+There are also two special kind of distributions:
+- [x] `ContinuousUnivariateDistribution` - any continuous univariate distribution from scipy.stats with method `.fit` *(scipy.stats.rv_continuous.fit)* (see *example 3*[TODO: add link]);
+- [x] `KernelDensityEstimator` - Kernel Density Estimation *(Parzen–Rosenblatt window method)* - non-parametric method (see *example 4*[TODO: add link]).
+
 #### Example 1: Bernoulli distribution
 
 ```python3
@@ -48,17 +53,19 @@ from naive_bayes.distributions import Bernoulli
 n_classes = 3
 n_samples = 100
 X = np.random.randint(low=0, high=2, size=n_samples)
-y = np.random.randint(low=0, high=n_classes, size=n_samples)  # categorical feature
+y = np.random.randint(
+    low=0, high=n_classes, size=n_samples
+)  # categorical feature
 
 # if only X provided to fit method, then fit marginal distribution p(X)
 distribution = Bernoulli()
 distribution.fit(X)
-log_prob = distribution.predict_log_proba(X)
+distribution.predict_log_proba(X)
 
 # if X and y provided to fit method, then fit conditional distribution p(X|y)
 distribution = Bernoulli()
 distribution.fit(X, y)
-log_prob = distribution.predict_log_proba(X)
+distribution.predict_log_proba(X)
 ```
 
 #### Example 2: Normal distribution
@@ -71,17 +78,70 @@ from naive_bayes.distributions import Normal
 n_classes = 3
 n_samples = 100
 X = np.random.randn(n_samples)
-y = np.random.randint(low=0, high=n_classes, size=n_samples)  # categorical feature
+y = np.random.randint(
+    low=0, high=n_classes, size=n_samples
+)  # categorical feature
 
 # if only X provided to fit method, then fit marginal distribution p(X)
 distribution = Normal()
 distribution.fit(X)
-log_prob = distribution.predict_log_proba(X)
+distribution.predict_log_proba(X)
 
 # if X and y provided to fit method, then fit conditional distribution p(X|y)
 distribution = Normal()
 distribution.fit(X, y)
-log_prob = distribution.predict_log_proba(X)
+distribution.predict_log_proba(X)
+```
+
+#### Example 3: ContinuousUnivariateDistribution
+
+```python3
+import numpy as np
+from scipy import stats
+
+from naive_bayes.distributions import ContinuousUnivariateDistribution
+
+n_classes = 3
+n_samples = 100
+X = np.random.randn(n_samples)
+y = np.random.randint(
+    low=0, high=n_classes, size=n_samples
+)  # categorical feature
+
+# if only X provided to fit method, then fit marginal distribution p(X)
+distribution = ContinuousUnivariateDistribution(stats.norm)
+distribution.fit(X)
+distribution.predict_log_proba(X)
+
+# if X and y provided to fit method, then fit conditional distribution p(X|y)
+distribution = ContinuousUnivariateDistribution(stats.norm)
+distribution.fit(X, y)
+distribution.predict_log_proba(X)
+```
+
+#### Example 4: KernelDensityEstimator
+
+```python3
+import numpy as np
+
+from naive_bayes.distributions import KernelDensityEstimator
+
+n_classes = 3
+n_samples = 100
+X = np.random.randn(n_samples)
+y = np.random.randint(
+    low=0, high=n_classes, size=n_samples
+)  # categorical feature
+
+# if only X provided to fit method, then fit marginal distribution p(X)
+distribution = KernelDensityEstimator()
+distribution.fit(X)
+distribution.predict_log_proba(X)
+
+# if X and y provided to fit method, then fit conditional distribution p(X|y)
+distribution = KernelDensityEstimator()
+distribution.fit(X, y)
+distribution.predict_log_proba(X)
 ```
 
 #### 2. Models
@@ -157,7 +217,9 @@ bernoulli_features = 3
 normal_features = 3
 n_classes = 3
 
-X_bernoulli = np.random.randint(low=0, high=2, size=(n_samples, bernoulli_features))
+X_bernoulli = np.random.randint(
+    low=0, high=2, size=(n_samples, bernoulli_features)
+)
 X_normal = np.random.randn(n_samples, normal_features)
 
 X = np.hstack(
@@ -169,7 +231,14 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 model = NaiveBayes(
-    distributions=[Bernoulli(), Bernoulli(), Bernoulli(), Normal(), Normal(), Normal()]
+    distributions=[
+        Bernoulli(),
+        Bernoulli(),
+        Bernoulli(),
+        Normal(),
+        Normal(),
+        Normal(),
+    ]
 )
 model.fit(X_train, y_train)
 model.predict(X_test)
@@ -182,12 +251,8 @@ model.predict(X_test)
 - `pre-commit>=2.13.0`
 - `scikit-learn>=0.24.2`
 
-The `pre-commit` library is used only for git hooks.
-The `scikit-learn` library is used to only import data.
-
 To install requirements use:<br>
 `pip install -r requirements`
-
 
 ### Tests
 
