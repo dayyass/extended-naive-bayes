@@ -23,6 +23,8 @@ from naive_bayes.utils import to_categorical
 
 np.random.seed(42)
 
+# TODO: add .sample tests
+
 
 class TestBernoulli(unittest.TestCase):
 

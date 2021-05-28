@@ -10,6 +10,7 @@ from naive_bayes.distributions.univariate import (  # noqa: F401
     ContinuousUnivariateDistribution,
     Exponential,
     Gamma,
+    GaussianMixtureEstimator,
     Geometric,
     KernelDensityEstimator,
     Normal,

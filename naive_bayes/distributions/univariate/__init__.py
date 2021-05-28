@@ -2,6 +2,7 @@ from typing import Optional
 
 import numpy as np
 from scipy.stats import rv_continuous
+from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import KernelDensity
 
 from naive_bayes.distributions.abstract import AbstractDistribution
@@ -120,6 +121,7 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
 class KernelDensityEstimator(AbstractDistribution):
     """
     Kernel Density Estimation (Parzen–Rosenblatt window method) - non-parametric method.
+    Based on sklearn: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
     """
 
     def __init__(
@@ -127,6 +129,7 @@ class KernelDensityEstimator(AbstractDistribution):
         bandwidth: float = 1.0,
         kernel: str = "gaussian",
         metric: str = "euclidean",
+        **kwargs,
     ) -> None:
         """
         Init Kernel Density Model.
@@ -134,11 +137,13 @@ class KernelDensityEstimator(AbstractDistribution):
         :param float bandwidth: The bandwidth of the kernel.
         :param str kernel: The kernel to use.
         :param str metric: The distance metric to use.
+        :param kwargs: additional sklearn Kernel Density Model parameters.
         """
 
         self.bandwidth = bandwidth
         self.kernel = kernel
         self.metric = metric
+        self.kwargs = kwargs
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
         """
@@ -153,7 +158,10 @@ class KernelDensityEstimator(AbstractDistribution):
 
         if y is None:
             self.kde = KernelDensity(
-                bandwidth=self.bandwidth, kernel=self.kernel, metric=self.metric
+                bandwidth=self.bandwidth,
+                kernel=self.kernel,
+                metric=self.metric,
+                **self.kwargs,
             ).fit(X[:, np.newaxis])
         else:
             n_classes = max(y) + 1
@@ -161,7 +169,10 @@ class KernelDensityEstimator(AbstractDistribution):
 
             for cls in range(n_classes):
                 self.kde[cls] = KernelDensity(
-                    bandwidth=self.bandwidth, kernel=self.kernel, metric=self.metric
+                    bandwidth=self.bandwidth,
+                    kernel=self.kernel,
+                    metric=self.metric,
+                    **self.kwargs,
                 ).fit(X[y == cls][:, np.newaxis])
 
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
@@ -199,13 +210,135 @@ class KernelDensityEstimator(AbstractDistribution):
         """
 
         if not isinstance(self.kde, list):
-            samples = self.kde.sample(n_samples=n_samples, random_state=random_state)
+            samples = self.kde.sample(
+                n_samples=n_samples, random_state=random_state
+            ).squeeze()
         else:
             n_classes = len(self.kde)
             samples = np.zeros((n_samples, n_classes))
 
             for cls in range(n_classes):
-                samples[:, cls] = self.kde[cls].sample(n_samples=n_samples, random_state=random_state)  # type: ignore
+                samples[:, cls] = self.kde[cls].sample(n_samples=n_samples, random_state=random_state).squeeze()  # type: ignore
+
+        return samples
+
+    @staticmethod
+    def _check_support(X: np.ndarray, **kwargs) -> None:
+        """
+        Method to check data for being in random variable support.
+
+        :param np.ndarray X: data.
+        :param kwargs: additional distribution parameters.
+        """
+
+        pass
+
+
+# TODO: add to multivariate
+class GaussianMixtureEstimator(AbstractDistribution):
+    """
+    Gaussian Mixture Estimation.
+    Based on sklearn: https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html
+    """
+
+    def __init__(
+        self,
+        n_components: int,
+        covariance_type: str = "full",
+        **kwargs,
+    ) -> None:
+        """
+        Init Gaussian Mixture Model.
+
+        :param int n_components: The number of mixture components.
+        :param str covariance_type: String describing the type of covariance parameters to use. Must be one of:
+               ‘full’
+                  each component has its own general covariance matrix
+               ‘tied’
+                  all components share the same general covariance matrix
+               ‘diag’
+                  each component has its own diagonal covariance matrix
+               ‘spherical’
+                  each component has its own single variance
+        :param kwargs: additional sklearn Gaussian Mixture Model parameters.
+        """
+
+        assert n_components > 1, "for n_components = 1 use Normal distribution."
+
+        self.n_components = n_components
+        self.covariance_type = covariance_type
+        self.kwargs = kwargs
+
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
+        """
+        Fit the Gaussian Mixture model on the data.
+
+        :param np.ndarray X: training data.
+        :param Optional[np.ndarray] y: target values.
+        """
+
+        self._check_input_data(X=X, y=y)
+        self._check_support(X=X)
+
+        if y is None:
+            self.gmm = GaussianMixture(
+                n_components=self.n_components,
+                covariance_type=self.covariance_type,
+                **self.kwargs,
+            ).fit(X[:, np.newaxis])
+        else:
+            n_classes = max(y) + 1
+            self.gmm = n_classes * [0]
+
+            for cls in range(n_classes):
+                self.gmm[cls] = GaussianMixture(
+                    n_components=self.n_components,
+                    covariance_type=self.covariance_type,
+                    **self.kwargs,
+                ).fit(X[y == cls][:, np.newaxis])
+
+    def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Evaluate the log density model on the data.
+
+        :param np.ndarray X: data.
+        :return: log density on the data.
+        :rtype: np.ndarray
+        """
+
+        self._check_input_data(X=X)
+        self._check_support(X=X)
+
+        if not isinstance(self.gmm, list):
+            log_proba = self.gmm.score_samples(X[:, np.newaxis])
+        else:
+            n_samples = X.shape[0]
+            n_classes = len(self.gmm)
+            log_proba = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                log_proba[:, cls] = self.gmm[cls].score_samples(X[:, np.newaxis])
+
+        return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.gmm, list):
+            samples = self.gmm.sample(n_samples=n_samples)[0].squeeze()
+        else:
+            n_classes = len(self.gmm)
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = self.gmm[cls].sample(n_samples=n_samples)[0].squeeze()  # type: ignore
 
         return samples
 

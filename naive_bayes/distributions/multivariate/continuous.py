@@ -76,8 +76,8 @@ class MultivariateNormal(AbstractDistribution):
             )
         else:
             n_classes = self.mu.shape[0]  # type: ignore
-            dim = self.mu.shape[1]
-            samples = np.zeros((n_samples, dim, n_classes))
+            n_dimensions = self.mu.shape[1]
+            samples = np.zeros((n_samples, n_dimensions, n_classes))
 
             for cls in range(n_classes):
                 samples[:, :, cls] = stats.multivariate_normal.rvs(mean=self.mu[cls], cov=self.sigma[cls], size=n_samples, random_state=random_state)  # type: ignore
