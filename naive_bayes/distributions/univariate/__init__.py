@@ -245,6 +245,7 @@ class GaussianMixtureEstimator(AbstractDistribution):
         self,
         n_components: int,
         covariance_type: str = "full",
+        random_state: Optional[int] = None,
         **kwargs,
     ) -> None:
         """
@@ -260,6 +261,7 @@ class GaussianMixtureEstimator(AbstractDistribution):
                   each component has its own diagonal covariance matrix
                ‘spherical’
                   each component has its own single variance
+        :param Optional[int] random_state: random number generator seed.
         :param kwargs: additional sklearn Gaussian Mixture Model parameters.
         """
 
@@ -267,6 +269,7 @@ class GaussianMixtureEstimator(AbstractDistribution):
 
         self.n_components = n_components
         self.covariance_type = covariance_type
+        self.random_state = random_state
         self.kwargs = kwargs
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
@@ -284,6 +287,7 @@ class GaussianMixtureEstimator(AbstractDistribution):
             self.gmm = GaussianMixture(
                 n_components=self.n_components,
                 covariance_type=self.covariance_type,
+                random_state=self.random_state,
                 **self.kwargs,
             ).fit(X[:, np.newaxis])
         else:
@@ -294,6 +298,7 @@ class GaussianMixtureEstimator(AbstractDistribution):
                 self.gmm[cls] = GaussianMixture(
                     n_components=self.n_components,
                     covariance_type=self.covariance_type,
+                    random_state=self.random_state,
                     **self.kwargs,
                 ).fit(X[y == cls][:, np.newaxis])
 

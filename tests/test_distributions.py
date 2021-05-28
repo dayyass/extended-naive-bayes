@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from scipy import stats
+from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import KernelDensity
 
 from naive_bayes.distributions import (
@@ -12,6 +13,7 @@ from naive_bayes.distributions import (
     ContinuousUnivariateDistribution,
     Exponential,
     Gamma,
+    GaussianMixtureEstimator,
     Geometric,
     KernelDensityEstimator,
     Multinomial,
@@ -624,7 +626,6 @@ class TestKernelDensityEstimator(unittest.TestCase):
     kernel = ["gaussian", "linear"]
 
     def test_predict_log_proba_gaussian_X(self):
-
         for bandwidth in self.bandwidth:
             for kernel in self.kernel:
                 with self.subTest():
@@ -655,6 +656,67 @@ class TestKernelDensityEstimator(unittest.TestCase):
                         dist_2 = KernelDensity(bandwidth=bandwidth, kernel=kernel).fit(
                             self.X[self.y == cls][:, np.newaxis]
                         )
+                        true[:, cls] = dist_2.score_samples(self.X[:, np.newaxis])
+
+                    self.assertTrue(np.allclose(pred, true))
+
+
+class TestGaussianMixtureEstimator(unittest.TestCase):
+
+    n_samples = 1000
+    n_classes = 2
+    X = np.random.randn(n_samples)
+    y = np.random.randint(low=0, high=n_classes, size=n_samples)
+
+    n_components = [2, 3]
+    covariance_type = ["full", "tied", "diag", "spherical"]
+    random_state = 42
+
+    def test_predict_log_proba_gaussian_X(self):
+        for n_components in self.n_components:
+            for covariance_type in self.covariance_type:
+                with self.subTest():
+
+                    dist_1 = GaussianMixtureEstimator(
+                        n_components=n_components,
+                        covariance_type=covariance_type,
+                        random_state=self.random_state,
+                    )
+                    dist_1.fit(self.X)
+
+                    dist_2 = GaussianMixture(
+                        n_components=n_components,
+                        covariance_type=covariance_type,
+                        random_state=self.random_state,
+                    )
+                    dist_2.fit(self.X[:, np.newaxis])
+
+                    pred = dist_1.predict_log_proba(self.X)
+                    true = dist_2.score_samples(self.X[:, np.newaxis])
+
+                    self.assertTrue(np.allclose(pred, true))
+
+    def test_predict_log_proba_gaussian_X_y(self):
+        for n_components in self.n_components:
+            for covariance_type in self.covariance_type:
+                with self.subTest():
+
+                    dist_1 = GaussianMixtureEstimator(
+                        n_components=n_components,
+                        covariance_type=covariance_type,
+                        random_state=self.random_state,
+                    )
+                    dist_1.fit(self.X, self.y)
+
+                    pred = dist_1.predict_log_proba(self.X)
+
+                    true = np.zeros((self.X.shape[0], self.n_classes))
+                    for cls in range(self.n_classes):
+                        dist_2 = GaussianMixture(
+                            n_components=n_components,
+                            covariance_type=covariance_type,
+                            random_state=self.random_state,
+                        ).fit(self.X[self.y == cls][:, np.newaxis])
                         true[:, cls] = dist_2.score_samples(self.X[:, np.newaxis])
 
                     self.assertTrue(np.allclose(pred, true))
