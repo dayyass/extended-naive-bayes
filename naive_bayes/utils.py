@@ -19,6 +19,20 @@ def to_categorical(arr: np.ndarray, num_classes: int) -> np.ndarray:
     return ohe
 
 
+def from_categorical(arr: np.ndarray) -> np.ndarray:
+    """
+    Transformation One-Hot vector to 1d numpy vector of integers.
+
+    :param np.ndarray arr: 1d numpy vector.
+    :return: 2d OHE matrix.
+    :rtype: np.ndarray
+    """
+
+    assert arr.ndim == 2, "arr should be a 2d matrix."
+
+    return np.argmax(arr, axis=1)
+
+
 def isinteger(arr: np.ndarray) -> bool:
     """
     Check if numpy array contains only integers.

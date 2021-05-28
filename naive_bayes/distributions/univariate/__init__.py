@@ -81,6 +81,29 @@ class ContinuousUnivariateDistribution(AbstractDistribution):
 
         return log_proba
 
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.distribution_params, np.ndarray):
+            samples = self.distribution.rvs(
+                *self.distribution_params, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = self.distribution_params.shape[0]  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = self.distribution.rvs(*self.distribution_params[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
+
     @staticmethod
     def _check_support(X: np.ndarray, **kwargs) -> None:
         """
@@ -164,6 +187,27 @@ class KernelDensityEstimator(AbstractDistribution):
                 log_proba[:, cls] = self.kde[cls].score_samples(X[:, np.newaxis])
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.kde, list):
+            samples = self.kde.sample(n_samples=n_samples, random_state=random_state)
+        else:
+            n_classes = len(self.kde)
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = self.kde[cls].sample(n_samples=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def _check_support(X: np.ndarray, **kwargs) -> None:

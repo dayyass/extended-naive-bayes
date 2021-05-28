@@ -1,7 +1,7 @@
 from typing import Optional
 
 import numpy as np
-from scipy import special, stats
+from scipy import stats
 
 from naive_bayes.distributions.abstract import AbstractDistribution
 
@@ -57,6 +57,29 @@ class Normal(AbstractDistribution):
                 log_proba[:, cls] = stats.norm.logpdf(X, loc=self.mu[cls], scale=self.sigma[cls])  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.mu, np.ndarray):
+            samples = stats.norm.rvs(
+                loc=self.mu, scale=self.sigma, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.mu)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.norm.rvs(loc=self.mu[cls], scale=self.sigma[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_mu_mle(X: np.ndarray) -> float:
@@ -140,16 +163,39 @@ class Exponential(AbstractDistribution):
         self._check_support(X=X)
 
         if not isinstance(self.lambda_, np.ndarray):
-            log_proba = self.logpdf(X, lambda_=self.lambda_)
+            log_proba = stats.expon.logpdf(X, scale=1 / self.lambda_)
         else:
             n_samples = X.shape[0]
             n_classes = len(self.lambda_)  # type: ignore
             log_proba = np.zeros((n_samples, n_classes))
 
             for cls in range(n_classes):
-                log_proba[:, cls] = self.logpdf(X, lambda_=self.lambda_[cls])  # type: ignore
+                log_proba[:, cls] = stats.expon.logpdf(X, scale=1 / self.lambda_[cls])  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.lambda_, np.ndarray):
+            samples = stats.expon.rvs(
+                scale=1 / self.lambda_, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.lambda_)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.expon.rvs(scale=1 / self.lambda_[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_lambda_mle(X: np.ndarray) -> float:
@@ -166,23 +212,6 @@ class Exponential(AbstractDistribution):
 
         lambda_ = 1 / X.mean()
         return lambda_
-
-    @staticmethod
-    def logpdf(X: np.ndarray, lambda_: float) -> np.ndarray:
-        """
-        Compute log of the probability density function at X.
-
-        :param np.ndarray  X: training data.
-        :param float lambda_: parameter lambda.
-        :return: log of the probability density function at X.
-        :rtype: np.ndarray
-        """
-
-        Exponential._check_input_data(X=X)
-        Exponential._check_support(X=X)
-
-        logpdf = np.log(lambda_) - lambda_ * X
-        return logpdf
 
     @staticmethod
     def _check_support(X: np.ndarray, **kwargs) -> None:
@@ -237,16 +266,42 @@ class Gamma(AbstractDistribution):
         self._check_support(X=X)
 
         if not isinstance(self.alpha, np.ndarray):
-            log_proba = self.logpdf(X, alpha=self.alpha, beta=self.beta)
+            log_proba = stats.gamma.logpdf(X, a=self.alpha, scale=1 / self.beta)
         else:
             n_samples = X.shape[0]
             n_classes = len(self.alpha)  # type: ignore
             log_proba = np.zeros((n_samples, n_classes))
 
             for cls in range(n_classes):
-                log_proba[:, cls] = self.logpdf(X, alpha=self.alpha[cls], beta=self.beta[cls])  # type: ignore
+                log_proba[:, cls] = stats.gamma.logpdf(X, a=self.alpha[cls], scale=1 / self.beta[cls])  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.alpha, np.ndarray):
+            samples = stats.gamma.rvs(
+                a=self.alpha,
+                scale=1 / self.beta,
+                size=n_samples,
+                random_state=random_state,
+            )
+        else:
+            n_classes = len(self.alpha)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.gamma.rvs(a=self.alpha[cls], scale=1 / self.beta[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_alpha_mme(X: np.ndarray) -> float:
@@ -290,29 +345,6 @@ class Gamma(AbstractDistribution):
         beta = 1 / theta
 
         return beta
-
-    @staticmethod
-    def logpdf(X: np.ndarray, alpha: float, beta: float) -> np.ndarray:
-        """
-        Compute log of the probability density function at X.
-
-        :param np.ndarray  X: training data.
-        :param float alpha: parameter alpha.
-        :param float beta: parameter beta.
-        :return: log of the probability density function at X.
-        :rtype: np.ndarray
-        """
-
-        Gamma._check_input_data(X=X)
-        Gamma._check_support(X=X)
-
-        logpdf = (
-            alpha * np.log(beta)
-            - special.loggamma(alpha)
-            + (alpha - 1) * np.log(X)
-            - beta * X
-        )
-        return logpdf
 
     @staticmethod
     def _check_support(X: np.ndarray, **kwargs) -> None:
@@ -377,6 +409,29 @@ class Beta(AbstractDistribution):
                 log_proba[:, cls] = stats.beta.logpdf(X, a=self.alpha[cls], b=self.beta[cls])  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.alpha, np.ndarray):
+            samples = stats.beta.rvs(
+                a=self.alpha, b=self.beta, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.alpha)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.beta.rvs(a=self.alpha[cls], b=self.beta[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_alpha_mme(X: np.ndarray) -> float:

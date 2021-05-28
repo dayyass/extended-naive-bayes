@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 
 from naive_bayes.distributions.abstract import AbstractDistribution
-from naive_bayes.utils import isinteger, to_categorical
+from naive_bayes.utils import from_categorical, isinteger, to_categorical
 
 
 class Bernoulli(AbstractDistribution):
@@ -55,6 +55,29 @@ class Bernoulli(AbstractDistribution):
                 log_proba[:, cls] = stats.bernoulli.logpmf(X, p=self.prob[cls])  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.prob, np.ndarray):
+            samples = stats.bernoulli.rvs(
+                p=self.prob, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.prob)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.bernoulli.rvs(p=self.prob[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_prob_mle(X: np.ndarray) -> float:
@@ -147,6 +170,31 @@ class Categorical(AbstractDistribution):
                 )  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if self.prob.ndim == 1:
+            samples = from_categorical(
+                stats.multinomial.rvs(
+                    n=1, p=self.prob, size=n_samples, random_state=random_state
+                )
+            )
+        else:
+            n_classes = len(self.prob)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = from_categorical(stats.multinomial.rvs(n=1, p=self.prob[cls], size=n_samples, random_state=random_state))  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_prob_mle(X: np.ndarray, k: int) -> np.ndarray:
@@ -248,6 +296,29 @@ class Binomial(AbstractDistribution):
 
         return log_proba
 
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.prob, np.ndarray):
+            samples = stats.binom.rvs(
+                n=self.n, p=self.prob, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.prob)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.binom.rvs(n=self.n, p=self.prob[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
+
     @staticmethod
     def compute_prob_mle(X: np.ndarray, n: int) -> float:
         """
@@ -334,6 +405,29 @@ class Geometric(AbstractDistribution):
 
         return log_proba
 
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.prob, np.ndarray):
+            samples = stats.geom.rvs(
+                p=self.prob, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.prob)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.geom.rvs(p=self.prob[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
+
     @staticmethod
     def compute_prob_mle(X: np.ndarray) -> float:
         """
@@ -410,6 +504,29 @@ class Poisson(AbstractDistribution):
                 log_proba[:, cls] = stats.poisson.logpmf(X, mu=self.lambda_[cls])  # type: ignore
 
         return log_proba
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if not isinstance(self.lambda_, np.ndarray):
+            samples = stats.poisson.rvs(
+                mu=self.lambda_, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = len(self.lambda_)  # type: ignore
+            samples = np.zeros((n_samples, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, cls] = stats.poisson.rvs(mu=self.lambda_[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
 
     @staticmethod
     def compute_lambda_mle(X: np.ndarray) -> float:

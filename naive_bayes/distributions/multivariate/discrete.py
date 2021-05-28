@@ -66,6 +66,18 @@ class Multinomial(AbstractDistribution):
 
         return log_proba
 
+    # TODO
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+        pass
+
     @staticmethod
     def compute_prob_mle(X: np.ndarray, n: int) -> np.ndarray:
         """

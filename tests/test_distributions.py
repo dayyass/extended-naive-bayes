@@ -365,7 +365,7 @@ class TestExponential(unittest.TestCase):
         dist.fit(self.X)
 
         pred = dist.predict_log_proba(self.X)
-        true = Exponential.logpdf(self.X, lambda_=dist.lambda_)
+        true = stats.expon.logpdf(self.X, scale=1 / dist.lambda_)
 
         self.assertTrue(np.allclose(pred, true))
 
@@ -389,16 +389,7 @@ class TestExponential(unittest.TestCase):
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = Exponential.logpdf(self.X, lambda_=dist.lambda_[cls])
-
-        self.assertTrue(np.allclose(pred, true))
-
-    def test_logpdf(self):
-        dist = Exponential()
-        dist.fit(self.X)
-
-        pred = Exponential.logpdf(self.X, lambda_=dist.lambda_)
-        true = stats.expon.logpdf(self.X, scale=1 / dist.lambda_)
+            true[:, cls] = stats.expon.logpdf(self.X, scale=1 / dist.lambda_[cls])
 
         self.assertTrue(np.allclose(pred, true))
 
@@ -428,7 +419,7 @@ class TestGamma(unittest.TestCase):
         dist.fit(self.X)
 
         pred = dist.predict_log_proba(self.X)
-        true = Gamma.logpdf(self.X, alpha=dist.alpha, beta=dist.beta)
+        true = stats.gamma.logpdf(self.X, a=dist.alpha, scale=1 / dist.beta)
 
         self.assertTrue(np.allclose(pred, true))
 
@@ -456,18 +447,9 @@ class TestGamma(unittest.TestCase):
 
         true = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = Gamma.logpdf(
-                self.X, alpha=dist.alpha[cls], beta=dist.beta[cls]
+            true[:, cls] = stats.gamma.logpdf(
+                self.X, a=dist.alpha[cls], scale=1 / dist.beta[cls]
             )
-
-        self.assertTrue(np.allclose(pred, true))
-
-    def test_logpdf(self):
-        dist = Gamma()
-        dist.fit(self.X)
-
-        pred = Gamma.logpdf(self.X, alpha=dist.alpha, beta=dist.beta)
-        true = stats.gamma.logpdf(self.X, a=dist.alpha, scale=1 / dist.beta)
 
         self.assertTrue(np.allclose(pred, true))
 

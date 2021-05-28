@@ -33,6 +33,20 @@ class AbstractDistribution(ABC):
         """
         pass
 
+    # TODO: raise exception if distribution is not fitted
+    # TODO: add _check
+    @abstractmethod
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+        pass
+
     @staticmethod
     def _check_input_data(
         X: np.ndarray, y: Optional[np.ndarray] = None, univariate: bool = True

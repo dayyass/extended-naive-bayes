@@ -60,6 +60,30 @@ class MultivariateNormal(AbstractDistribution):
 
         return log_proba
 
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate random variables samples from fitted distribution.
+
+        :param int n_samples: number of random variables samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: random variables samples.
+        :rtype: np.ndarray
+        """
+
+        if self.mu.ndim == 1:
+            samples = stats.multivariate_normal.rvs(
+                mean=self.mu, cov=self.sigma, size=n_samples, random_state=random_state
+            )
+        else:
+            n_classes = self.mu.shape[0]  # type: ignore
+            dim = self.mu.shape[1]
+            samples = np.zeros((n_samples, dim, n_classes))
+
+            for cls in range(n_classes):
+                samples[:, :, cls] = stats.multivariate_normal.rvs(mean=self.mu[cls], cov=self.sigma[cls], size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
+
     @staticmethod
     def compute_mu_mle(X: np.ndarray) -> np.ndarray:
         """
