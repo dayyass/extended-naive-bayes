@@ -668,7 +668,7 @@ class TestGaussianMixtureEstimator(unittest.TestCase):
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     n_components = [2, 3]
-    covariance_type = ["full", "tied", "diag", "spherical"]
+    covariance_type = ["full", "tied"]
     random_state = 42
 
     def test_predict_log_proba_gaussian_X(self):
