@@ -1,9 +1,10 @@
 import unittest
+from typing import Union
 
 import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import BernoulliNB, CategoricalNB, GaussianNB, _BaseNB
+from sklearn.naive_bayes import BernoulliNB, CategoricalNB, GaussianNB, MultinomialNB
 
 from naive_bayes.distributions import Normal
 from naive_bayes.models import (
@@ -19,7 +20,7 @@ np.random.seed(42)
 
 def _compare_model_with_sklean(
     model: AbstractModel,
-    sklearn_model: _BaseNB,
+    sklearn_model: Union[GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB],
     X: np.ndarray,
     y: np.ndarray,
 ) -> bool:
@@ -27,7 +28,7 @@ def _compare_model_with_sklean(
     Function to compare our and sklearn models (all methods).
 
     :param AbstractModel model: our model.
-    :param _BaseNB sklearn_model: sklearn model.
+    :param Union[GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB] sklearn_model: sklearn model.
     :param np.ndarray X: data.
     :param np.ndarray y: target.
     :return: True if all equal.

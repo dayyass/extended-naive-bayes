@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import numpy as np
 
@@ -13,11 +13,12 @@ class AbstractModel(ABC):
     Abstract base class to represent Naive Bayes model.
     """
 
-    def __init__(self, distributions: List[AbstractDistribution]) -> None:
+    # TODO: add str parametrization for distributions
+    def __init__(self, distributions: List[Union[AbstractDistribution, str]]) -> None:
         """
         Init model with distributions for all features.
 
-        :param List[AbstractDistribution] distributions: list of feature distributions.
+        :param List[Union[AbstractDistribution, str]] distributions: list of feature distributions.
         """
 
         self.distributions = distributions
@@ -32,7 +33,6 @@ class AbstractModel(ABC):
         """
         pass
 
-    @abstractmethod
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Method to compute model predictions.
@@ -41,9 +41,10 @@ class AbstractModel(ABC):
         :return: model predictions.
         :rtype: np.ndarray
         """
-        pass
 
-    @abstractmethod
+        log_prob_y_x = self.predict_log_proba(X)
+        return np.argmax(log_prob_y_x, axis=1)
+
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """
         Method to compute class probabilities.
@@ -52,7 +53,8 @@ class AbstractModel(ABC):
         :return: class probabilities.
         :rtype: np.ndarray
         """
-        pass
+
+        return np.exp(self.predict_log_proba(X))
 
     @abstractmethod
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
@@ -65,7 +67,6 @@ class AbstractModel(ABC):
         """
         pass
 
-    @abstractmethod
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """
         Method to compute mean accuracy given X data and y labels.
@@ -75,7 +76,10 @@ class AbstractModel(ABC):
         :return: mean accuracy.
         :rtype: float
         """
-        pass
+
+        self._check_input_data(X=X, y=y)
+
+        return np.mean(self.predict(X) == y)
 
     def _check_input_data(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> None:
         """
