@@ -47,10 +47,13 @@ class TestBernoulli(unittest.TestCase):
         dist = Bernoulli()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.bernoulli.logpmf(self.X, p=dist.prob)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.bernoulli.logpmf(self.X, p=dist.prob)
+        true_2 = stats.bernoulli.pmf(self.X, p=dist.prob)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Bernoulli()
@@ -68,13 +71,17 @@ class TestBernoulli(unittest.TestCase):
         dist = Bernoulli()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.bernoulli.logpmf(self.X, p=dist.prob[cls])
+            true_1[:, cls] = stats.bernoulli.logpmf(self.X, p=dist.prob[cls])
+            true_2[:, cls] = stats.bernoulli.pmf(self.X, p=dist.prob[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestCategorical(unittest.TestCase):
@@ -100,12 +107,17 @@ class TestCategorical(unittest.TestCase):
         dist = Categorical(k=self.k)
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.multinomial.logpmf(
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.multinomial.logpmf(
+            to_categorical(self.X, num_classes=self.k), n=1, p=dist.prob
+        )
+        true_2 = stats.multinomial.pmf(
             to_categorical(self.X, num_classes=self.k), n=1, p=dist.prob
         )
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Categorical(k=self.k)
@@ -124,15 +136,21 @@ class TestCategorical(unittest.TestCase):
         dist = Categorical(k=self.k)
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.multinomial.logpmf(
+            true_1[:, cls] = stats.multinomial.logpmf(
+                to_categorical(self.X, num_classes=self.k), n=1, p=dist.prob[cls]
+            )
+            true_2[:, cls] = stats.multinomial.pmf(
                 to_categorical(self.X, num_classes=self.k), n=1, p=dist.prob[cls]
             )
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestBinomial(unittest.TestCase):
@@ -156,10 +174,13 @@ class TestBinomial(unittest.TestCase):
         dist = Binomial(n=self.n)
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.binom.logpmf(self.X, n=self.n, p=dist.prob)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.binom.logpmf(self.X, n=self.n, p=dist.prob)
+        true_2 = stats.binom.pmf(self.X, n=self.n, p=dist.prob)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Binomial(n=self.n)
@@ -177,13 +198,17 @@ class TestBinomial(unittest.TestCase):
         dist = Binomial(n=self.n)
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.binom.logpmf(self.X, n=self.n, p=dist.prob[cls])
+            true_1[:, cls] = stats.binom.logpmf(self.X, n=self.n, p=dist.prob[cls])
+            true_2[:, cls] = stats.binom.pmf(self.X, n=self.n, p=dist.prob[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestGeometric(unittest.TestCase):
@@ -207,10 +232,13 @@ class TestGeometric(unittest.TestCase):
         dist = Geometric()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.geom.logpmf(self.X, p=dist.prob)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.geom.logpmf(self.X, p=dist.prob)
+        true_2 = stats.geom.pmf(self.X, p=dist.prob)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Geometric()
@@ -228,13 +256,17 @@ class TestGeometric(unittest.TestCase):
         dist = Geometric()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.geom.logpmf(self.X, p=dist.prob[cls])
+            true_1[:, cls] = stats.geom.logpmf(self.X, p=dist.prob[cls])
+            true_2[:, cls] = stats.geom.pmf(self.X, p=dist.prob[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestPoisson(unittest.TestCase):
@@ -258,10 +290,13 @@ class TestPoisson(unittest.TestCase):
         dist = Poisson()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.poisson.logpmf(self.X, mu=dist.lambda_)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.poisson.logpmf(self.X, mu=dist.lambda_)
+        true_2 = stats.poisson.pmf(self.X, mu=dist.lambda_)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Poisson()
@@ -279,13 +314,17 @@ class TestPoisson(unittest.TestCase):
         dist = Poisson()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.poisson.logpmf(self.X, mu=dist.lambda_[cls])
+            true_1[:, cls] = stats.poisson.logpmf(self.X, mu=dist.lambda_[cls])
+            true_2[:, cls] = stats.poisson.pmf(self.X, mu=dist.lambda_[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestGaussian(unittest.TestCase):
@@ -311,10 +350,13 @@ class TestGaussian(unittest.TestCase):
         dist = Normal()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.norm.logpdf(self.X, loc=dist.mu, scale=dist.sigma)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.norm.logpdf(self.X, loc=dist.mu, scale=dist.sigma)
+        true_2 = stats.norm.pdf(self.X, loc=dist.mu, scale=dist.sigma)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Normal()
@@ -336,15 +378,21 @@ class TestGaussian(unittest.TestCase):
         dist = Normal()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.norm.logpdf(
+            true_1[:, cls] = stats.norm.logpdf(
+                self.X, loc=dist.mu[cls], scale=dist.sigma[cls]
+            )
+            true_2[:, cls] = stats.norm.pdf(
                 self.X, loc=dist.mu[cls], scale=dist.sigma[cls]
             )
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestExponential(unittest.TestCase):
@@ -367,10 +415,13 @@ class TestExponential(unittest.TestCase):
         dist = Exponential()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.expon.logpdf(self.X, scale=1 / dist.lambda_)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.expon.logpdf(self.X, scale=1 / dist.lambda_)
+        true_2 = stats.expon.pdf(self.X, scale=1 / dist.lambda_)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Exponential()
@@ -388,13 +439,17 @@ class TestExponential(unittest.TestCase):
         dist = Exponential()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.expon.logpdf(self.X, scale=1 / dist.lambda_[cls])
+            true_1[:, cls] = stats.expon.logpdf(self.X, scale=1 / dist.lambda_[cls])
+            true_2[:, cls] = stats.expon.pdf(self.X, scale=1 / dist.lambda_[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestGamma(unittest.TestCase):
@@ -421,10 +476,13 @@ class TestGamma(unittest.TestCase):
         dist = Gamma()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.gamma.logpdf(self.X, a=dist.alpha, scale=1 / dist.beta)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.gamma.logpdf(self.X, a=dist.alpha, scale=1 / dist.beta)
+        true_2 = stats.gamma.pdf(self.X, a=dist.alpha, scale=1 / dist.beta)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Gamma()
@@ -446,15 +504,21 @@ class TestGamma(unittest.TestCase):
         dist = Gamma()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.gamma.logpdf(
+            true_1[:, cls] = stats.gamma.logpdf(
+                self.X, a=dist.alpha[cls], scale=1 / dist.beta[cls]
+            )
+            true_2[:, cls] = stats.gamma.pdf(
                 self.X, a=dist.alpha[cls], scale=1 / dist.beta[cls]
             )
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestBeta(unittest.TestCase):
@@ -481,10 +545,13 @@ class TestBeta(unittest.TestCase):
         dist = Beta()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.beta.logpdf(self.X, a=dist.alpha, b=dist.beta)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.beta.logpdf(self.X, a=dist.alpha, b=dist.beta)
+        true_2 = stats.beta.pdf(self.X, a=dist.alpha, b=dist.beta)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = Beta()
@@ -506,15 +573,19 @@ class TestBeta(unittest.TestCase):
         dist = Beta()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.beta.logpdf(
+            true_1[:, cls] = stats.beta.logpdf(
                 self.X, a=dist.alpha[cls], b=dist.beta[cls]
             )
+            true_2[:, cls] = stats.beta.pdf(self.X, a=dist.alpha[cls], b=dist.beta[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 # TODO
@@ -549,10 +620,13 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
         dist_2 = Normal()
         dist_2.fit(self.X_norm)
 
-        pred = dist_1.predict_log_proba(self.X_norm)
-        true = dist_2.predict_log_proba(self.X_norm)
+        pred_1 = dist_1.predict_log_proba(self.X_norm)
+        pred_2 = dist_1.predict_proba(self.X_norm)
+        true_1 = dist_2.predict_log_proba(self.X_norm)
+        true_2 = dist_2.predict_proba(self.X_norm)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_gaussian_X_y(self):
         dist_1 = ContinuousUnivariateDistribution(stats.norm)
@@ -577,10 +651,13 @@ class TestContinuousUnivariateDistribution(unittest.TestCase):
         dist_2 = Normal()
         dist_2.fit(self.X_norm, self.y)
 
-        pred = dist_1.predict_log_proba(self.X_norm)
-        true = dist_2.predict_log_proba(self.X_norm)
+        pred_1 = dist_1.predict_log_proba(self.X_norm)
+        pred_2 = dist_1.predict_proba(self.X_norm)
+        true_1 = dist_2.predict_log_proba(self.X_norm)
+        true_2 = dist_2.predict_proba(self.X_norm)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 #     # def test_fit_exponential_X(self):
@@ -652,9 +729,8 @@ class TestKernelDensityEstimator(unittest.TestCase):
 
                     true = np.zeros((self.X.shape[0], self.n_classes))
                     for cls in range(self.n_classes):
-                        dist_2 = KernelDensity(bandwidth=bandwidth, kernel=kernel).fit(
-                            self.X[self.y == cls][:, np.newaxis]
-                        )
+                        dist_2 = KernelDensity(bandwidth=bandwidth, kernel=kernel)
+                        dist_2.fit(self.X[self.y == cls][:, np.newaxis])
                         true[:, cls] = dist_2.score_samples(self.X[:, np.newaxis])
 
                     self.assertTrue(np.allclose(pred, true))
@@ -745,10 +821,13 @@ class TestMultinomial(unittest.TestCase):
         dist = Multinomial(n=self.n)
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.multinomial.logpmf(self.X, n=self.n, p=dist.prob)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.multinomial.logpmf(self.X, n=self.n, p=dist.prob)
+        true_2 = stats.multinomial.pmf(self.X, n=self.n, p=dist.prob)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     # # TODO
     # def test_fit_X_y(self):
@@ -768,13 +847,19 @@ class TestMultinomial(unittest.TestCase):
         dist = Multinomial(n=self.n)
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.multinomial.logpmf(self.X, n=self.n, p=dist.prob[cls])
+            true_1[:, cls] = stats.multinomial.logpmf(
+                self.X, n=self.n, p=dist.prob[cls]
+            )
+            true_2[:, cls] = stats.multinomial.pmf(self.X, n=self.n, p=dist.prob[cls])
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
 
 class TestMultivariateNormal(unittest.TestCase):
@@ -801,10 +886,13 @@ class TestMultivariateNormal(unittest.TestCase):
         dist = MultivariateNormal()
         dist.fit(self.X)
 
-        pred = dist.predict_log_proba(self.X)
-        true = stats.multivariate_normal.logpdf(self.X, mean=dist.mu, cov=dist.sigma)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
+        true_1 = stats.multivariate_normal.logpdf(self.X, mean=dist.mu, cov=dist.sigma)
+        true_2 = stats.multivariate_normal.pdf(self.X, mean=dist.mu, cov=dist.sigma)
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
 
     def test_fit_X_y(self):
         dist = MultivariateNormal()
@@ -826,12 +914,18 @@ class TestMultivariateNormal(unittest.TestCase):
         dist = MultivariateNormal()
         dist.fit(self.X, self.y)
 
-        pred = dist.predict_log_proba(self.X)
+        pred_1 = dist.predict_log_proba(self.X)
+        pred_2 = dist.predict_proba(self.X)
 
-        true = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.X.shape[0], self.n_classes))
+        true_2 = np.zeros((self.X.shape[0], self.n_classes))
         for cls in range(self.n_classes):
-            true[:, cls] = stats.multivariate_normal.logpdf(
+            true_1[:, cls] = stats.multivariate_normal.logpdf(
+                self.X, mean=dist.mu[cls], cov=dist.sigma[cls]
+            )
+            true_2[:, cls] = stats.multivariate_normal.pdf(
                 self.X, mean=dist.mu[cls], cov=dist.sigma[cls]
             )
 
-        self.assertTrue(np.allclose(pred, true))
+        self.assertTrue(np.allclose(pred_1, true_1))
+        self.assertTrue(np.allclose(pred_2, true_2))
