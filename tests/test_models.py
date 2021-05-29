@@ -10,8 +10,9 @@ from naive_bayes.distributions import Normal
 from naive_bayes.models import (
     BernoulliNaiveBayes,
     CategoricalNaiveBayes,
+    ExtendedNaiveBayes,
     GaussianNaiveBayes,
-    NaiveBayes,
+    SklearnExtendedNaiveBayes,
 )
 from naive_bayes.models.abstract import AbstractModel
 
@@ -53,17 +54,19 @@ def _compare_model_with_sklean(
 
 
 # TODO: add other sklearn models
-class TestNaiveBayes(unittest.TestCase):
+class TestExtendedNaiveBayes(unittest.TestCase):
 
     X, y = load_iris(return_X_y=True)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=0
     )
 
-    def test_fit_normal_sklearn(self):
+    def test_normal_compare_with_sklearn(self):
 
         # our model
-        model = NaiveBayes(distributions=[Normal(), Normal(), Normal(), Normal()])
+        model = ExtendedNaiveBayes(
+            distributions=[Normal() for _ in range(self.X.shape[1])]
+        )
         model.fit(self.X_train, self.y_train)
 
         # sklearn model
@@ -95,10 +98,10 @@ class TestGaussianNaiveBayes(unittest.TestCase):
         X, y, test_size=0.25, random_state=0
     )
 
-    def test_fit_sklearn(self):
+    def test_compare_with_sklearn(self):
 
         # our model
-        model = GaussianNaiveBayes(n_features=self.X_train.shape[1])
+        model = GaussianNaiveBayes(n_features=self.X.shape[1])
         model.fit(self.X_train, self.y_train)
 
         # sklearn model
@@ -127,12 +130,12 @@ class TestGaussianNaiveBayes(unittest.TestCase):
 class TestBernoulliNaiveBayes(unittest.TestCase):
 
     n_samples = 1000
-    n_features = 10
+    n_features = 5
     n_classes = 2
     X = np.random.randint(2, size=(n_samples, n_features))
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
-    def test_fit_sklearn(self):
+    def test_compare_with_sklearn(self):
 
         # our model
         model = BernoulliNaiveBayes(n_features=self.n_features)
@@ -162,7 +165,7 @@ class TestCategoricalNaiveBayes(unittest.TestCase):
     X = np.random.randint(n_categories, size=(n_samples, n_features))
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
-    def test_fit_sklearn(self):
+    def test_compare_with_sklearn(self):
 
         # our model
         model = CategoricalNaiveBayes(
@@ -182,3 +185,85 @@ class TestCategoricalNaiveBayes(unittest.TestCase):
                 self.y,
             )
         )
+
+
+# TODO: add mixed feature distributions
+class TestSklearnExtendedNaiveBayes(unittest.TestCase):
+
+    n_samples = 1000
+    n_features = 5
+    n_classes = 2
+
+    def test_normal_compare_with_sklearn(self):
+
+        # data
+        X, y = load_iris(return_X_y=True)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.25, random_state=0
+        )
+
+        # our model
+        model = SklearnExtendedNaiveBayes(
+            distributions=["gaussian" for _ in range(X.shape[1])]
+        )
+        model.fit(X_train, y_train)
+
+        # sklearn model
+        sklearn_model = GaussianNB()
+        sklearn_model.fit(X_train, y_train)
+
+        self.assertTrue(
+            _compare_model_with_sklean(
+                model,
+                sklearn_model,
+                X_train,
+                y_train,
+            )
+        )
+        self.assertTrue(
+            _compare_model_with_sklean(
+                model,
+                sklearn_model,
+                X_test,
+                y_test,
+            )
+        )
+
+    def test_bernoulli_compare_with_sklearn(self):
+
+        # data
+        X = np.random.randint(2, size=(self.n_samples, self.n_features))
+        y = np.random.randint(low=0, high=self.n_classes, size=self.n_samples)
+
+        # our model
+        model = SklearnExtendedNaiveBayes(
+            distributions=["bernoulli" for _ in range(self.n_features)]
+        )
+        model.fit(X, y)
+
+        # sklearn model
+        # TODO: improve the model to work with alpha > 0
+        sklearn_model = BernoulliNB(alpha=0)
+        sklearn_model.fit(X, y)
+
+        self.assertTrue(_compare_model_with_sklean(model, sklearn_model, X, y))
+
+    def test_categorical_compare_with_sklearn(self):
+
+        # data
+        n_categories = [10, 6, 8, 3, 4]
+        X = np.random.randint(n_categories, size=(self.n_samples, self.n_features))
+        y = np.random.randint(low=0, high=self.n_classes, size=self.n_samples)
+
+        # our model
+        model = SklearnExtendedNaiveBayes(
+            distributions=["categorical" for _ in range(self.n_features)]
+        )
+        model.fit(X, y)
+
+        # sklearn model
+        # TODO: improve the model to work with alpha > 0
+        sklearn_model = CategoricalNB(alpha=0)
+        sklearn_model.fit(X, y)
+
+        self.assertTrue(_compare_model_with_sklean(model, sklearn_model, X, y))

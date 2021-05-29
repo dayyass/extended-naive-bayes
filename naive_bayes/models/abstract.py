@@ -13,10 +13,19 @@ class AbstractModel(ABC):
     Abstract base class to represent Naive Bayes model.
     """
 
-    # TODO: add str parametrization for distributions
     def __init__(self, distributions: List[Union[AbstractDistribution, str]]) -> None:
         """
-        Init model with distributions for all features.
+        Init model with distribution for each feature.
+        Available distributions for ExtendedNaiveBayes in naive_bayes.distributions.
+        Available distributions for SklearnExtendedNaiveBayes:
+           ‘gaussian’
+              normal distributed feature
+           ‘bernoulli’
+              bernoulli distributed feature
+           ‘categorical’
+              categorical distributed feature
+           ‘multinomial’
+              multinomial distributed feature
 
         :param List[Union[AbstractDistribution, str]] distributions: list of feature distributions.
         """

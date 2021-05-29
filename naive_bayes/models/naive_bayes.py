@@ -6,12 +6,11 @@ from scipy.special import logsumexp
 from naive_bayes.distributions import Bernoulli, Categorical, Normal
 from naive_bayes.models.abstract import AbstractModel
 
-# TODO: allow to init model with strings
 
-
-class NaiveBayes(AbstractModel):
+# TODO: add str parametrization for ExtendedNaiveBayes
+class ExtendedNaiveBayes(AbstractModel):
     """
-    Naive Bayes model.
+    Extended (allow different distributions for each feature) Naive Bayes model.
     """
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
@@ -57,7 +56,7 @@ class NaiveBayes(AbstractModel):
         return log_prob_y_x
 
 
-class GaussianNaiveBayes(NaiveBayes):
+class GaussianNaiveBayes(ExtendedNaiveBayes):
     """
     Naive Bayes model with normal distributed features.
     """
@@ -72,7 +71,7 @@ class GaussianNaiveBayes(NaiveBayes):
         super().__init__(distributions=[Normal() for _ in range(n_features)])
 
 
-class BernoulliNaiveBayes(NaiveBayes):
+class BernoulliNaiveBayes(ExtendedNaiveBayes):
     """
     Naive Bayes model with bernoulli distributed features.
     """
@@ -87,7 +86,7 @@ class BernoulliNaiveBayes(NaiveBayes):
         super().__init__(distributions=[Bernoulli() for _ in range(n_features)])
 
 
-class CategoricalNaiveBayes(NaiveBayes):
+class CategoricalNaiveBayes(ExtendedNaiveBayes):
     """
     Naive Bayes model with categorical distributed features.
     """
@@ -107,3 +106,6 @@ class CategoricalNaiveBayes(NaiveBayes):
         super().__init__(
             distributions=[Categorical(n_categories[i]) for i in range(n_features)]
         )
+
+
+# TODO: add MultinomialNaiveBayes

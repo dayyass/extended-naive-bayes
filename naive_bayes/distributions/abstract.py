@@ -68,6 +68,7 @@ class AbstractDistribution(ABC):
             assert min(y) == 0, "y labels should starts with 0."
             assert isinteger(y), "y should be integer vector."
 
+    # TODO: maybe raise ValueError like in sklearn, not assert
     @staticmethod
     @abstractmethod
     def _check_support(X: np.ndarray, **kwargs) -> None:
