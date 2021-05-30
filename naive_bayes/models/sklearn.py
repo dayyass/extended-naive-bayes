@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import numpy as np
 from sklearn.naive_bayes import BernoulliNB, CategoricalNB, GaussianNB, MultinomialNB
@@ -9,39 +9,52 @@ from naive_bayes.models.abstract import AbstractModel
 class SklearnExtendedNaiveBayes(AbstractModel):
     """
     Extended (allow different distributions for each feature) Naive Bayes model based on sklearn models.
+    Model works as a combination of GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB.
     """
 
-    def __init__(self, distributions: List[str]) -> None:
+    # TODO: fix alpha=0
+    def __init__(
+        self,
+        distributions: List[str],
+        gaussian_model: GaussianNB = GaussianNB(),
+        bernoulli_model: BernoulliNB = BernoulliNB(alpha=0),
+        categorical_model: CategoricalNB = CategoricalNB(alpha=0),
+        multinomial_model: MultinomialNB = MultinomialNB(),
+    ) -> None:
         """
         Init model with distribution for each feature.
 
         :param List[str] distributions: list of feature distributions. Must be one of:
            ‘gaussian’
-              normal distributed feature
+              normal distributed feature (sklearn.naive_bayes.GaussianNB is used)
            ‘bernoulli’
-              bernoulli distributed feature
+              bernoulli distributed feature (sklearn.naive_bayes.BernoulliNB is used)
            ‘categorical’
-              categorical distributed feature
+              categorical distributed feature (sklearn.naive_bayes.CategoricalNB is used)
            ‘multinomial’
-              multinomial distributed feature
+              multinomial distributed feature (sklearn.naive_bayes.MultinomialNB is used)
+        :param GaussianNB gaussian_model: use to specify GaussianNB parameters (if you don't want to use defaults)
+        :param BernoulliNB bernoulli_model: use to specify BernoulliNB parameters (if you don't want to use defaults)
+        :param CategoricalNB categorical_model: use to specify CategoricalNB parameters (if you don't want to use defaults)
+        :param MultinomialNB multinomial_model: use to specify MultinomialNB parameters (if you don't want to use defaults)
         """
 
         super().__init__(distributions)  # type: ignore
-        self._permitted_distributions = [
-            "gaussian",
-            "bernoulli",
-            "categorical",
-            "multinomial",
-        ]
-        self.models = {}
+        self.models = {
+            "gaussian": gaussian_model,
+            "bernoulli": bernoulli_model,
+            "categorical": categorical_model,
+            "multinomial": multinomial_model,
+        }
+        self._permitted_distributions = set(self.models.keys())
 
         unique_distributions = np.unique(distributions)
         self._check_input_distributions(unique_distributions)
 
-        for distribution in unique_distributions:
-            self.models[distribution] = self._get_sklearn_model_given_distribution_name(
-                distribution
-            )
+        # remove unused models
+        for model_name in self._permitted_distributions:
+            if model_name not in unique_distributions:
+                self.models.pop(model_name)
 
     def fit(
         self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None
@@ -55,6 +68,7 @@ class SklearnExtendedNaiveBayes(AbstractModel):
         """
 
         self._check_input_data(X=X, y=y)
+        self._check_sample_weight(sample_weight)
 
         for distribution in self.models.keys():
             features_idx = self._get_features_idx_given_distribution_name(distribution)
@@ -80,6 +94,7 @@ class SklearnExtendedNaiveBayes(AbstractModel):
         """
 
         self._check_input_data(X=X, y=y)
+        self._check_sample_weight(sample_weight)
 
         for distribution in self.models.keys():
             features_idx = self._get_features_idx_given_distribution_name(distribution)
@@ -103,37 +118,11 @@ class SklearnExtendedNaiveBayes(AbstractModel):
 
         log_prob_y_x = np.zeros((n_samples, n_classes))
 
-        for model in self.models.values():
-            log_prob_y_x += model.predict_log_proba(X)
+        for distribution, model in self.models.items():
+            features_idx = self._get_features_idx_given_distribution_name(distribution)
+            log_prob_y_x += model.predict_log_proba(X[:, features_idx])
 
         return log_prob_y_x
-
-    def _get_sklearn_model_given_distribution_name(
-        self, distribution: str
-    ) -> Union[GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB]:
-        """
-        Mapping from distribution name to sklearn model.
-
-        :param str distribution: distribution name.
-        :return: sklearn model.
-        :rtype: Union[GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB]
-        """
-
-        # TODO: add kwargs
-        if distribution == "gaussian":
-            model = GaussianNB()
-        elif distribution == "bernoulli":
-            model = BernoulliNB(alpha=0)  # TODO: fix hardcode
-        elif distribution == "categorical":
-            model = CategoricalNB(alpha=0)  # TODO: fix hardcode
-        elif distribution == "multinomial":
-            model = MultinomialNB()
-        else:
-            raise ValueError(
-                f"feature distribution must be one of the following: {self._permitted_distributions}"
-            )
-
-        return model
 
     # TODO: maybe use ones and save mapping into dictionary for optimization
     def _get_features_idx_given_distribution_name(
@@ -150,7 +139,6 @@ class SklearnExtendedNaiveBayes(AbstractModel):
         features_idx = np.where(np.array(self.distributions) == distribution)[0]
         return features_idx
 
-    # TODO: validate (add tests)
     def _check_input_distributions(self, distributions: List[str]) -> None:
         """
         Method to check correctness of input distributions.
@@ -159,17 +147,17 @@ class SklearnExtendedNaiveBayes(AbstractModel):
         """
 
         correct = np.all(
-            dist in self._permitted_distributions for dist in distributions
+            [(dist in self._permitted_distributions) for dist in distributions]
         )
         assert (
             correct
         ), f"feature distribution must be one of the following: {self._permitted_distributions}"
 
-    def _check_sample_weight(self, sample_weight: np.ndarray) -> None:
+    def _check_sample_weight(self, sample_weight: Optional[np.ndarray]) -> None:
         """
         Method to check correctness of sample_weight.
 
         :param np.ndarray sample_weight: Weights applied to individual samples (1. for unweighted).
         """
-
-        assert sample_weight.ndim == 1, "sample_weight should be a 1d vector."
+        if sample_weight:
+            assert sample_weight.ndim == 1, "sample_weight should be a 1d vector."

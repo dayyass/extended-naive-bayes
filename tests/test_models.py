@@ -187,12 +187,12 @@ class TestCategoricalNaiveBayes(unittest.TestCase):
         )
 
 
-# TODO: add mixed feature distributions
 class TestSklearnExtendedNaiveBayes(unittest.TestCase):
 
     n_samples = 1000
     n_features = 5
     n_classes = 2
+    n_categories = [10, 6, 8, 3, 4]
 
     def test_normal_compare_with_sklearn(self):
 
@@ -206,6 +206,7 @@ class TestSklearnExtendedNaiveBayes(unittest.TestCase):
         model = SklearnExtendedNaiveBayes(
             distributions=["gaussian" for _ in range(X.shape[1])]
         )
+        self.assertTrue(set(model.models.keys()) == {"gaussian"})
         model.fit(X_train, y_train)
 
         # sklearn model
@@ -239,6 +240,7 @@ class TestSklearnExtendedNaiveBayes(unittest.TestCase):
         model = SklearnExtendedNaiveBayes(
             distributions=["bernoulli" for _ in range(self.n_features)]
         )
+        self.assertTrue(set(model.models.keys()) == {"bernoulli"})
         model.fit(X, y)
 
         # sklearn model
@@ -251,14 +253,14 @@ class TestSklearnExtendedNaiveBayes(unittest.TestCase):
     def test_categorical_compare_with_sklearn(self):
 
         # data
-        n_categories = [10, 6, 8, 3, 4]
-        X = np.random.randint(n_categories, size=(self.n_samples, self.n_features))
+        X = np.random.randint(self.n_categories, size=(self.n_samples, self.n_features))
         y = np.random.randint(low=0, high=self.n_classes, size=self.n_samples)
 
         # our model
         model = SklearnExtendedNaiveBayes(
             distributions=["categorical" for _ in range(self.n_features)]
         )
+        self.assertTrue(set(model.models.keys()) == {"categorical"})
         model.fit(X, y)
 
         # sklearn model
@@ -267,3 +269,45 @@ class TestSklearnExtendedNaiveBayes(unittest.TestCase):
         sklearn_model.fit(X, y)
 
         self.assertTrue(_compare_model_with_sklean(model, sklearn_model, X, y))
+
+    def test_normal_bernoulli_categorucal_compare_with_sklearn(self):
+
+        # data
+        X_normal = np.random.randn(self.n_samples, self.n_features)
+        X_bernoulli = np.random.randint(2, size=(self.n_samples, self.n_features))
+        X_categorical = np.random.randint(
+            self.n_categories, size=(self.n_samples, self.n_features)
+        )
+
+        X = np.hstack([X_normal, X_bernoulli, X_categorical])
+        y = np.random.randint(low=0, high=self.n_classes, size=self.n_samples)
+
+        # our model
+        model = SklearnExtendedNaiveBayes(
+            distributions=X_normal.shape[1] * ["gaussian"]
+            + X_bernoulli.shape[1] * ["bernoulli"]
+            + X_categorical.shape[1] * ["categorical"]
+        )
+        self.assertTrue(
+            set(model.models.keys()) == {"gaussian", "bernoulli", "categorical"}
+        )
+        model.fit(X, y)
+
+        # sklearn models
+        sklearn_normal_model = GaussianNB()
+        sklearn_normal_model.fit(X_normal, y)
+
+        sklearn_bernoulli_model = BernoulliNB(alpha=0)  # TODO: fix hardcore
+        sklearn_bernoulli_model.fit(X_bernoulli, y)
+
+        sklearn_categorical_model = CategoricalNB(alpha=0)  # TODO: fix hardcore
+        sklearn_categorical_model.fit(X_categorical, y)
+
+        pred_log_prob = model.predict_log_proba(X)
+        true_log_prob = (
+            sklearn_normal_model.predict_log_proba(X_normal)
+            + sklearn_bernoulli_model.predict_log_proba(X_bernoulli)
+            + sklearn_categorical_model.predict_log_proba(X_categorical)
+        )
+
+        self.assertTrue(np.allclose(pred_log_prob, true_log_prob))

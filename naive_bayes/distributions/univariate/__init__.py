@@ -253,19 +253,22 @@ class GaussianMixtureEstimator(AbstractDistribution):
 
         :param int n_components: The number of mixture components.
         :param str covariance_type: String describing the type of covariance parameters to use. Must be one of:
-               ‘full’
-                  each component has its own general covariance matrix
-               ‘tied’
-                  all components share the same general covariance matrix
-               ‘diag’
-                  each component has its own diagonal covariance matrix
-               ‘spherical’
-                  each component has its own single variance
+           ‘full’
+              each component has its own variance
+           ‘tied’
+              all components share the same variance
+           Note: sklearn GaussianMixture allows 4 types of covariance_type: ‘full’, ‘tied’, ‘diag’, ‘spherical’,
+                 but in univariate case, ‘full’, ‘diag’ and ‘spherical’ lead to the same result,
+                 so they collapsed into ‘full’ covariance_type.
         :param Optional[int] random_state: random number generator seed.
         :param kwargs: additional sklearn Gaussian Mixture Model parameters.
         """
 
         assert n_components > 1, "for n_components = 1 use Normal distribution."
+        assert covariance_type in [
+            "full",
+            "tied",
+        ], "covariance type should by ‘full’ or ‘tied’"
 
         self.n_components = n_components
         self.covariance_type = covariance_type
