@@ -141,7 +141,7 @@ class TestReadme(unittest.TestCase):
         import numpy as np
         from sklearn.model_selection import train_test_split
 
-        from naive_bayes import NaiveBayes
+        from naive_bayes import ExtendedNaiveBayes
         from naive_bayes.distributions import Bernoulli, Normal
 
         n_samples = 1000
@@ -162,7 +162,7 @@ class TestReadme(unittest.TestCase):
             X, y, test_size=0.25, random_state=0
         )
 
-        model = NaiveBayes(
+        model = ExtendedNaiveBayes(
             distributions=[
                 Bernoulli(),
                 Bernoulli(),

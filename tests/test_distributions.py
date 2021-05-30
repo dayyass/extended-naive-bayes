@@ -16,11 +16,10 @@ from naive_bayes.distributions import (
     GaussianMixtureEstimator,
     Geometric,
     KernelDensityEstimator,
-    Multinomial,
-    MultivariateNormal,
     Normal,
     Poisson,
 )
+from naive_bayes.distributions.multivariate import Multinomial, MultivariateNormal
 from naive_bayes.utils import to_categorical
 
 np.random.seed(42)
