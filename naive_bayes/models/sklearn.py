@@ -124,6 +124,20 @@ class SklearnExtendedNaiveBayes(AbstractModel):
 
         return log_prob_y_x
 
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate samples from fitted data.
+
+        :param int n_samples: number of samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: samples.
+        :rtype: np.ndarray
+        """
+
+        raise NotImplementedError(
+            "since sklearn naive bayes models doesn't have .sample method, it's also not possible to sample from SklearnExtendedNaiveBayes. If you want to sample from fitted naive bayes model use naive_bayes.ExtendedNaiveBayes .sample method"
+        )
+
     # TODO: maybe use ones and save mapping into dictionary for optimization
     def _get_features_idx_given_distribution_name(
         self, distribution: str

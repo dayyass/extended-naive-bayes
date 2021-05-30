@@ -22,6 +22,17 @@ class AbstractDistribution(ABC):
         """
         pass
 
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Method to compute probabilities given X (data).
+
+        :param np.ndarray X: data.
+        :return: probabilities for X.
+        :rtype: np.ndarray
+        """
+
+        return np.exp(self.predict_log_proba(X))
+
     @abstractmethod
     def predict_log_proba(self, X: np.ndarray) -> np.ndarray:
         """

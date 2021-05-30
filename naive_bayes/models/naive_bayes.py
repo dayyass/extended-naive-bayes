@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from scipy.special import logsumexp
@@ -54,6 +54,27 @@ class ExtendedNaiveBayes(AbstractModel):
         log_prob_y_x = log_prob_xy - log_prob_x[:, np.newaxis]
 
         return log_prob_y_x
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate samples from fitted data.
+
+        :param int n_samples: number of samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: samples.
+        :rtype: np.ndarray
+        """
+
+        n_features = len(self.distributions)
+        n_classes = len(self.priors)
+
+        samples = np.zeros((n_samples, n_features, n_classes))
+        for feature in range(len(self.distributions)):
+            samples[:, feature, :] = self.distributions[feature].sample(  # type: ignore
+                n_samples=n_samples, random_state=random_state
+            )
+
+        return samples
 
 
 class GaussianNaiveBayes(ExtendedNaiveBayes):

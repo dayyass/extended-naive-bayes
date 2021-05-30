@@ -18,6 +18,8 @@ from naive_bayes.models.abstract import AbstractModel
 
 np.random.seed(42)
 
+# TODO: add .sample tests
+
 
 def _compare_model_with_sklean(
     model: AbstractModel,

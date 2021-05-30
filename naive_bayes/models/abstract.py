@@ -76,6 +76,20 @@ class AbstractModel(ABC):
         """
         pass
 
+    # TODO: raise exception if model is not fitted
+    # TODO: add _check
+    @abstractmethod
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate samples from fitted data.
+
+        :param int n_samples: number of samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: samples.
+        :rtype: np.ndarray
+        """
+        pass
+
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """
         Method to compute mean accuracy given X data and y labels.
