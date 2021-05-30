@@ -69,7 +69,7 @@ class ExtendedNaiveBayes(AbstractModel):
         n_classes = len(self.priors)
 
         samples = np.zeros((n_samples, n_features, n_classes))
-        for feature in range(len(self.distributions)):
+        for feature in range(n_features):
             samples[:, feature, :] = self.distributions[feature].sample(  # type: ignore
                 n_samples=n_samples, random_state=random_state
             )
@@ -91,6 +91,38 @@ class GaussianNaiveBayes(ExtendedNaiveBayes):
 
         super().__init__(distributions=[Normal() for _ in range(n_features)])
 
+    @property
+    def theta_(self):
+        """
+        Mean of each feature per class. Similar to sklearn.
+        """
+
+        n_features = len(self.distributions)
+        n_classes = len(self.priors)
+
+        theta = np.zeros((n_features, n_classes))
+        for feature in range(n_features):
+            theta[feature, :] = self.distributions[feature].mu
+
+        # TODO: fix transpose
+        return theta.T
+
+    @property
+    def sigma_(self):
+        """
+        Variance of each feature per class. Similar to sklearn.
+        """
+
+        n_features = len(self.distributions)
+        n_classes = len(self.priors)
+
+        sigma = np.zeros((n_features, n_classes))
+        for feature in range(n_features):
+            sigma[feature, :] = self.distributions[feature].sigma ** 2
+
+        # TODO: fix transpose
+        return sigma.T
+
 
 class BernoulliNaiveBayes(ExtendedNaiveBayes):
     """
@@ -105,6 +137,30 @@ class BernoulliNaiveBayes(ExtendedNaiveBayes):
         """
 
         super().__init__(distributions=[Bernoulli() for _ in range(n_features)])
+
+    @property
+    def _prob_(self):
+        """
+        Probability of features given a class.
+        """
+
+        n_features = len(self.distributions)
+        n_classes = len(self.priors)
+
+        prob = np.zeros((n_features, n_classes))
+        for feature in range(n_features):
+            prob[feature, :] = self.distributions[feature].prob
+
+        # TODO: fix transpose
+        return prob.T
+
+    @property
+    def feature_log_prob_(self):
+        """
+        Empirical log probability of features given a class, P(x_i|y). Similar to sklearn.
+        """
+
+        return np.log(self._prob_)
 
 
 class CategoricalNaiveBayes(ExtendedNaiveBayes):
@@ -127,6 +183,33 @@ class CategoricalNaiveBayes(ExtendedNaiveBayes):
         super().__init__(
             distributions=[Categorical(n_categories[i]) for i in range(n_features)]
         )
+
+    @property
+    def _prob_(self):
+        """
+        Probability of categories given the respective feature and class.
+        """
+
+        n_features = len(self.distributions)
+        n_classes = len(self.priors)
+
+        prob = [
+            np.zeros((n_classes, self.distributions[feature].k))
+            for feature in range(n_features)
+        ]
+        for feature in range(n_features):
+            prob[feature] = self.distributions[feature].prob
+
+        return prob
+
+    @property
+    def feature_log_prob_(self):
+        """
+        Holds arrays of shape (n_classes, n_categories of respective feature) for each feature.
+        Each array provides the empirical log probability of categories given the respective feature and class, P(x_i|y).
+        """
+
+        return [np.log(feature) for feature in self._prob_]
 
 
 # TODO: add MultinomialNaiveBayes

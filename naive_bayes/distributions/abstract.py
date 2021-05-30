@@ -20,7 +20,6 @@ class AbstractDistribution(ABC):
         :param np.ndarray X: training data.
         :param Optional[np.ndarray] y: target values.
         """
-        pass
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """
@@ -42,7 +41,6 @@ class AbstractDistribution(ABC):
         :return: log probabilities for X.
         :rtype: np.ndarray
         """
-        pass
 
     # TODO: raise exception if distribution is not fitted
     # TODO: add _check
@@ -56,7 +54,6 @@ class AbstractDistribution(ABC):
         :return: random variables samples.
         :rtype: np.ndarray
         """
-        pass
 
     @staticmethod
     def _check_input_data(
@@ -89,4 +86,3 @@ class AbstractDistribution(ABC):
         :param np.ndarray X: data.
         :param kwargs: additional distribution parameters.
         """
-        pass

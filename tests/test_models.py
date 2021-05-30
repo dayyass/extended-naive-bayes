@@ -127,6 +127,9 @@ class TestGaussianNaiveBayes(unittest.TestCase):
             )
         )
 
+        self.assertTrue(np.allclose(model.theta_, sklearn_model.theta_))
+        self.assertTrue(np.allclose(model.sigma_, sklearn_model.sigma_))
+
 
 # TODO: improve the model to work with alpha > 0
 class TestBernoulliNaiveBayes(unittest.TestCase):
@@ -154,6 +157,10 @@ class TestBernoulliNaiveBayes(unittest.TestCase):
                 self.X,
                 self.y,
             )
+        )
+
+        self.assertTrue(
+            np.allclose(model.feature_log_prob_, sklearn_model.feature_log_prob_)
         )
 
 
@@ -185,6 +192,18 @@ class TestCategoricalNaiveBayes(unittest.TestCase):
                 sklearn_model,
                 self.X,
                 self.y,
+            )
+        )
+
+        self.assertTrue(
+            np.all(
+                [
+                    np.allclose(
+                        model.feature_log_prob_[feature],
+                        sklearn_model.feature_log_prob_[feature],
+                    )
+                    for feature in range(self.n_features)
+                ]
             )
         )
 
