@@ -100,12 +100,11 @@ class GaussianNaiveBayes(ExtendedNaiveBayes):
         n_features = len(self.distributions)
         n_classes = len(self.priors)
 
-        theta = np.zeros((n_features, n_classes))
+        theta = np.zeros((n_classes, n_features))
         for feature in range(n_features):
-            theta[feature, :] = self.distributions[feature].mu
+            theta[:, feature] = self.distributions[feature].mu
 
-        # TODO: fix transpose
-        return theta.T
+        return theta
 
     @property
     def sigma_(self):
@@ -116,12 +115,11 @@ class GaussianNaiveBayes(ExtendedNaiveBayes):
         n_features = len(self.distributions)
         n_classes = len(self.priors)
 
-        sigma = np.zeros((n_features, n_classes))
+        sigma = np.zeros((n_classes, n_features))
         for feature in range(n_features):
-            sigma[feature, :] = self.distributions[feature].sigma ** 2
+            sigma[:, feature] = self.distributions[feature].sigma ** 2
 
-        # TODO: fix transpose
-        return sigma.T
+        return sigma
 
 
 class BernoulliNaiveBayes(ExtendedNaiveBayes):
@@ -147,12 +145,11 @@ class BernoulliNaiveBayes(ExtendedNaiveBayes):
         n_features = len(self.distributions)
         n_classes = len(self.priors)
 
-        prob = np.zeros((n_features, n_classes))
+        prob = np.zeros((n_classes, n_features))
         for feature in range(n_features):
-            prob[feature, :] = self.distributions[feature].prob
+            prob[:, feature] = self.distributions[feature].prob
 
-        # TODO: fix transpose
-        return prob.T
+        return prob
 
     @property
     def feature_log_prob_(self):
