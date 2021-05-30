@@ -104,7 +104,7 @@ class TestReadme(unittest.TestCase):
         import numpy as np
         from sklearn.model_selection import train_test_split
 
-        from naive_bayes import BernoulliNaiveBayes
+        from naive_bayes.models import BernoulliNaiveBayes
 
         n_samples = 1000
         n_features = 10
@@ -125,7 +125,7 @@ class TestReadme(unittest.TestCase):
         from sklearn.datasets import load_iris
         from sklearn.model_selection import train_test_split
 
-        from naive_bayes import GaussianNaiveBayes
+        from naive_bayes.models import GaussianNaiveBayes
 
         X, y = load_iris(return_X_y=True)
         X_train, X_test, y_train, y_test = train_test_split(
@@ -141,8 +141,8 @@ class TestReadme(unittest.TestCase):
         import numpy as np
         from sklearn.model_selection import train_test_split
 
-        from naive_bayes import ExtendedNaiveBayes
         from naive_bayes.distributions import Bernoulli, Normal
+        from naive_bayes.models import ExtendedNaiveBayes
 
         n_samples = 1000
         bernoulli_features = 3

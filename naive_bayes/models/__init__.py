@@ -4,4 +4,9 @@ from naive_bayes.models.naive_bayes import (  # noqa: F401
     ExtendedNaiveBayes,
     GaussianNaiveBayes,
 )
-from naive_bayes.models.sklearn import SklearnExtendedNaiveBayes  # noqa: F401
+from naive_bayes.models.sklearn import (  # noqa: F401
+    SklearnBernoulliNaiveBayes,
+    SklearnCategoricalNaiveBayes,
+    SklearnExtendedNaiveBayes,
+    SklearnGaussianNaiveBayes,
+)

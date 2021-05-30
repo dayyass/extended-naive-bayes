@@ -1,9 +1,107 @@
 from typing import List, Optional
 
 import numpy as np
+from scipy import stats
 from sklearn.naive_bayes import BernoulliNB, CategoricalNB, GaussianNB, MultinomialNB
+from sklearn.utils.validation import check_is_fitted
 
 from naive_bayes.models.abstract import AbstractModel
+from naive_bayes.utils import from_categorical
+
+
+class SklearnGaussianNaiveBayes(GaussianNB):
+    """
+    Usual sklearn.naive_bayes.GaussianNB which allows sampling.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate samples from fitted data.
+
+        :param int n_samples: number of samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: samples.
+        :rtype: np.ndarray
+        """
+
+        check_is_fitted(self)
+
+        n_classes, n_features = self.theta_.shape
+        samples = np.zeros((n_samples, n_features, n_classes))
+
+        for cls in range(n_classes):
+            for feature in range(n_features):
+                samples[:, feature, cls] = stats.norm.rvs(loc=self.theta_[cls, feature], scale=self.sigma_[cls, feature] ** 0.5, size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
+
+
+class SklearnBernoulliNaiveBayes(BernoulliNB):
+    """
+    Usual sklearn.naive_bayes.BernoulliNB which allows sampling.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate samples from fitted data.
+
+        :param int n_samples: number of samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: samples.
+        :rtype: np.ndarray
+        """
+
+        check_is_fitted(self)
+
+        n_classes, n_features = self.feature_log_prob_.shape
+        samples = np.zeros((n_samples, n_features, n_classes))
+
+        for cls in range(n_classes):
+            for feature in range(n_features):
+                samples[:, feature, cls] = stats.bernoulli.rvs(p=np.exp(self.feature_log_prob_[cls, feature]), size=n_samples, random_state=random_state)  # type: ignore
+
+        return samples
+
+
+class SklearnCategoricalNaiveBayes(CategoricalNB):
+    """
+    Usual sklearn.naive_bayes.CategoricalNB which allows sampling.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def sample(self, n_samples: int, random_state: Optional[int] = None) -> np.ndarray:
+        """
+        Generate samples from fitted data.
+
+        :param int n_samples: number of samples.
+        :param Optional[int] random_state: random number generator seed.
+        :return: samples.
+        :rtype: np.ndarray
+        """
+
+        check_is_fitted(self)
+
+        n_classes = len(self.classes_)
+        n_features = self.n_features_
+
+        samples = np.zeros((n_samples, n_features, n_classes))
+
+        for cls in range(n_classes):
+            for feature in range(n_features):
+                samples[:, feature, cls] = from_categorical(stats.multinomial.rvs(n=1, p=np.exp(self.feature_log_prob_[feature][cls]), size=n_samples, random_state=random_state))  # type: ignore
+
+        return samples
+
+
+# TODO: add SklearnMultinomialNaiveBayes
 
 
 class SklearnExtendedNaiveBayes(AbstractModel):
@@ -134,6 +232,7 @@ class SklearnExtendedNaiveBayes(AbstractModel):
         :rtype: np.ndarray
         """
 
+        # TODO: implement
         raise NotImplementedError(
             "since sklearn naive bayes models doesn't have .sample method, it's also not possible to sample from SklearnExtendedNaiveBayes. If you want to sample from fitted naive bayes model use naive_bayes.ExtendedNaiveBayes .sample method"
         )

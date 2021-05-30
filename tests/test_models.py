@@ -12,7 +12,10 @@ from naive_bayes.models import (
     CategoricalNaiveBayes,
     ExtendedNaiveBayes,
     GaussianNaiveBayes,
+    SklearnBernoulliNaiveBayes,
+    SklearnCategoricalNaiveBayes,
     SklearnExtendedNaiveBayes,
+    SklearnGaussianNaiveBayes,
 )
 from naive_bayes.models.abstract import AbstractModel
 
@@ -22,7 +25,7 @@ np.random.seed(42)
 
 
 def _compare_model_with_sklean(
-    model: AbstractModel,
+    model: Union[AbstractModel, GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB],
     sklearn_model: Union[GaussianNB, BernoulliNB, CategoricalNB, MultinomialNB],
     X: np.ndarray,
     y: np.ndarray,
@@ -99,36 +102,63 @@ class TestGaussianNaiveBayes(unittest.TestCase):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=0
     )
+    random_state = 42
 
     def test_compare_with_sklearn(self):
-
-        # our model
-        model = GaussianNaiveBayes(n_features=self.X.shape[1])
-        model.fit(self.X_train, self.y_train)
 
         # sklearn model
         sklearn_model = GaussianNB()
         sklearn_model.fit(self.X_train, self.y_train)
 
-        self.assertTrue(
-            _compare_model_with_sklean(
-                model,
-                sklearn_model,
-                self.X_train,
-                self.y_train,
-            )
-        )
-        self.assertTrue(
-            _compare_model_with_sklean(
-                model,
-                sklearn_model,
-                self.X_test,
-                self.y_test,
-            )
-        )
+        for model_class in [GaussianNaiveBayes, SklearnGaussianNaiveBayes]:
+            with self.subTest():
 
-        self.assertTrue(np.allclose(model.theta_, sklearn_model.theta_))
-        self.assertTrue(np.allclose(model.sigma_, sklearn_model.sigma_))
+                # our model
+                if model_class == GaussianNaiveBayes:
+                    model = model_class(n_features=self.X.shape[1])
+                elif model_class == SklearnGaussianNaiveBayes:
+                    model = model_class()
+
+                model.fit(self.X_train, self.y_train)
+
+                self.assertTrue(
+                    _compare_model_with_sklean(
+                        model,
+                        sklearn_model,
+                        self.X_train,
+                        self.y_train,
+                    )
+                )
+                self.assertTrue(
+                    _compare_model_with_sklean(
+                        model,
+                        sklearn_model,
+                        self.X_test,
+                        self.y_test,
+                    )
+                )
+
+                self.assertTrue(np.allclose(model.theta_, sklearn_model.theta_))
+                self.assertTrue(np.allclose(model.sigma_, sklearn_model.sigma_))
+
+    def test_compare_sampling(self):
+
+        model_1 = GaussianNaiveBayes(n_features=self.X.shape[1])
+        model_1.fit(self.X_train, self.y_train)
+
+        model_2 = SklearnGaussianNaiveBayes()
+        model_2.fit(self.X_train, self.y_train)
+
+        self.assertTrue(
+            np.allclose(
+                model_1.sample(
+                    n_samples=self.X.shape[0], random_state=self.random_state
+                ),
+                model_2.sample(
+                    n_samples=self.X.shape[0], random_state=self.random_state
+                ),
+            )
+        )
 
 
 # TODO: improve the model to work with alpha > 0
@@ -139,28 +169,57 @@ class TestBernoulliNaiveBayes(unittest.TestCase):
     n_classes = 2
     X = np.random.randint(2, size=(n_samples, n_features))
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
+    random_state = 42
 
     def test_compare_with_sklearn(self):
-
-        # our model
-        model = BernoulliNaiveBayes(n_features=self.n_features)
-        model.fit(self.X, self.y)
 
         # sklearn model
         sklearn_model = BernoulliNB(alpha=0)
         sklearn_model.fit(self.X, self.y)
 
-        self.assertTrue(
-            _compare_model_with_sklean(
-                model,
-                sklearn_model,
-                self.X,
-                self.y,
-            )
-        )
+        for model_class in [BernoulliNaiveBayes, SklearnBernoulliNaiveBayes]:
+            with self.subTest():
+
+                # our model
+                if model_class == BernoulliNaiveBayes:
+                    model = model_class(n_features=self.n_features)
+                elif model_class == SklearnBernoulliNaiveBayes:
+                    model = model_class(alpha=0)
+
+                model.fit(self.X, self.y)
+
+                self.assertTrue(
+                    _compare_model_with_sklean(
+                        model,
+                        sklearn_model,
+                        self.X,
+                        self.y,
+                    )
+                )
+
+                self.assertTrue(
+                    np.allclose(
+                        model.feature_log_prob_, sklearn_model.feature_log_prob_
+                    )
+                )
+
+    def test_compare_sampling(self):
+
+        model_1 = BernoulliNaiveBayes(n_features=self.n_features)
+        model_1.fit(self.X, self.y)
+
+        model_2 = SklearnBernoulliNaiveBayes(alpha=0)
+        model_2.fit(self.X, self.y)
 
         self.assertTrue(
-            np.allclose(model.feature_log_prob_, sklearn_model.feature_log_prob_)
+            np.allclose(
+                model_1.sample(
+                    n_samples=self.n_samples, random_state=self.random_state
+                ),
+                model_2.sample(
+                    n_samples=self.n_samples, random_state=self.random_state
+                ),
+            )
         )
 
 
@@ -173,37 +232,66 @@ class TestCategoricalNaiveBayes(unittest.TestCase):
     n_classes = 2
     X = np.random.randint(n_categories, size=(n_samples, n_features))
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
+    random_state = 42
 
     def test_compare_with_sklearn(self):
-
-        # our model
-        model = CategoricalNaiveBayes(
-            n_features=self.n_features, n_categories=self.n_categories
-        )
-        model.fit(self.X, self.y)
 
         # sklearn model
         sklearn_model = CategoricalNB(alpha=0)
         sklearn_model.fit(self.X, self.y)
 
-        self.assertTrue(
-            _compare_model_with_sklean(
-                model,
-                sklearn_model,
-                self.X,
-                self.y,
-            )
+        for model_class in [CategoricalNaiveBayes, SklearnCategoricalNaiveBayes]:
+            with self.subTest():
+
+                # our model
+                if model_class == CategoricalNaiveBayes:
+                    model = model_class(
+                        n_features=self.n_features, n_categories=self.n_categories
+                    )
+                elif model_class == SklearnCategoricalNaiveBayes:
+                    model = model_class(alpha=0)
+
+                model.fit(self.X, self.y)
+
+                self.assertTrue(
+                    _compare_model_with_sklean(
+                        model,
+                        sklearn_model,
+                        self.X,
+                        self.y,
+                    )
+                )
+
+                self.assertTrue(
+                    np.all(
+                        [
+                            np.allclose(
+                                model.feature_log_prob_[feature],
+                                sklearn_model.feature_log_prob_[feature],
+                            )
+                            for feature in range(self.n_features)
+                        ]
+                    )
+                )
+
+    def test_compare_sampling(self):
+
+        model_1 = CategoricalNaiveBayes(
+            n_features=self.n_features, n_categories=self.n_categories
         )
+        model_1.fit(self.X, self.y)
+
+        model_2 = SklearnCategoricalNaiveBayes(alpha=0)
+        model_2.fit(self.X, self.y)
 
         self.assertTrue(
-            np.all(
-                [
-                    np.allclose(
-                        model.feature_log_prob_[feature],
-                        sklearn_model.feature_log_prob_[feature],
-                    )
-                    for feature in range(self.n_features)
-                ]
+            np.allclose(
+                model_1.sample(
+                    n_samples=self.n_samples, random_state=self.random_state
+                ),
+                model_2.sample(
+                    n_samples=self.n_samples, random_state=self.random_state
+                ),
             )
         )
 
