@@ -27,8 +27,9 @@ class MultivariateNormal(AbstractDistribution):
             self.sigma = self.compute_sigma_mle(X)
         else:
             n_classes = max(y) + 1
-            self.mu = np.zeros((n_classes, X.shape[1]))
-            self.sigma = np.zeros((n_classes, X.shape[1], X.shape[1]))
+            n_features = X.shape[1]
+            self.mu = np.zeros((n_classes, n_features))
+            self.sigma = np.zeros((n_classes, n_features, n_features))
 
             for cls in range(n_classes):
                 self.mu[cls] = self.compute_mu_mle(X[y == cls])  # type: ignore
@@ -113,8 +114,10 @@ class MultivariateNormal(AbstractDistribution):
         MultivariateNormal._check_input_data(X=X, univariate=False)
         MultivariateNormal._check_support(X=X)
 
+        n_samples = X.shape[0]
+
         mu = X.mean(axis=0)
-        sigma = (X - mu).T @ (X - mu) / X.shape[0]
+        sigma = (X - mu).T @ (X - mu) / n_samples
         return sigma
 
     @staticmethod

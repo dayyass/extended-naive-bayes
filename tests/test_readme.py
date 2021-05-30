@@ -131,8 +131,9 @@ class TestReadme(unittest.TestCase):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.25, random_state=0
         )
+        n_features = X.shape[1]
 
-        model = GaussianNaiveBayes(n_features=X.shape[1])
+        model = GaussianNaiveBayes(n_features=n_features)
         model.fit(X_train, y_train)
         model.predict(X_test)
 

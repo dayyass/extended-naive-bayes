@@ -65,12 +65,13 @@ class TestExtendedNaiveBayes(unittest.TestCase):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=0
     )
+    n_features = X.shape[1]
 
     def test_normal_compare_with_sklearn(self):
 
         # our model
         model = ExtendedNaiveBayes(
-            distributions=[Normal() for _ in range(self.X.shape[1])]
+            distributions=[Normal() for _ in range(self.n_features)]
         )
         model.fit(self.X_train, self.y_train)
 
@@ -102,6 +103,7 @@ class TestGaussianNaiveBayes(unittest.TestCase):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=0
     )
+    n_samples, n_features = X.shape
     random_state = 42
 
     def test_compare_with_sklearn(self):
@@ -115,7 +117,7 @@ class TestGaussianNaiveBayes(unittest.TestCase):
 
                 # our model
                 if model_class == GaussianNaiveBayes:
-                    model = model_class(n_features=self.X.shape[1])
+                    model = model_class(n_features=self.n_features)
                 elif model_class == SklearnGaussianNaiveBayes:
                     model = model_class()
 
@@ -143,7 +145,7 @@ class TestGaussianNaiveBayes(unittest.TestCase):
 
     def test_compare_sampling(self):
 
-        model_1 = GaussianNaiveBayes(n_features=self.X.shape[1])
+        model_1 = GaussianNaiveBayes(n_features=self.n_features)
         model_1.fit(self.X_train, self.y_train)
 
         model_2 = SklearnGaussianNaiveBayes()
@@ -152,10 +154,10 @@ class TestGaussianNaiveBayes(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 model_1.sample(
-                    n_samples=self.X.shape[0], random_state=self.random_state
+                    n_samples=self.n_samples, random_state=self.random_state
                 ),
                 model_2.sample(
-                    n_samples=self.X.shape[0], random_state=self.random_state
+                    n_samples=self.n_samples, random_state=self.random_state
                 ),
             )
         )
@@ -310,10 +312,11 @@ class TestSklearnExtendedNaiveBayes(unittest.TestCase):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.25, random_state=0
         )
+        n_features = X.shape[1]
 
         # our model
         model = SklearnExtendedNaiveBayes(
-            distributions=["gaussian" for _ in range(X.shape[1])]
+            distributions=["gaussian" for _ in range(n_features)]
         )
         self.assertTrue(set(model.models.keys()) == {"gaussian"})
         model.fit(X_train, y_train)

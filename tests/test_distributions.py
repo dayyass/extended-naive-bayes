@@ -74,8 +74,8 @@ class TestBernoulli(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.bernoulli.logpmf(self.X, p=dist.prob[cls])
             true_2[:, cls] = stats.bernoulli.pmf(self.X, p=dist.prob[cls])
@@ -139,8 +139,8 @@ class TestCategorical(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.multinomial.logpmf(
                 to_categorical(self.X, num_classes=self.k), n=1, p=dist.prob[cls]
@@ -201,8 +201,8 @@ class TestBinomial(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.binom.logpmf(self.X, n=self.n, p=dist.prob[cls])
             true_2[:, cls] = stats.binom.pmf(self.X, n=self.n, p=dist.prob[cls])
@@ -259,8 +259,8 @@ class TestGeometric(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.geom.logpmf(self.X, p=dist.prob[cls])
             true_2[:, cls] = stats.geom.pmf(self.X, p=dist.prob[cls])
@@ -317,8 +317,8 @@ class TestPoisson(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.poisson.logpmf(self.X, mu=dist.lambda_[cls])
             true_2[:, cls] = stats.poisson.pmf(self.X, mu=dist.lambda_[cls])
@@ -381,8 +381,8 @@ class TestGaussian(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.norm.logpdf(
                 self.X, loc=dist.mu[cls], scale=dist.sigma[cls]
@@ -442,8 +442,8 @@ class TestExponential(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.expon.logpdf(self.X, scale=1 / dist.lambda_[cls])
             true_2[:, cls] = stats.expon.pdf(self.X, scale=1 / dist.lambda_[cls])
@@ -507,8 +507,8 @@ class TestGamma(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.gamma.logpdf(
                 self.X, a=dist.alpha[cls], scale=1 / dist.beta[cls]
@@ -576,8 +576,8 @@ class TestBeta(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.beta.logpdf(
                 self.X, a=dist.alpha[cls], b=dist.beta[cls]
@@ -727,7 +727,7 @@ class TestKernelDensityEstimator(unittest.TestCase):
 
                     pred = dist_1.predict_log_proba(self.X)
 
-                    true = np.zeros((self.X.shape[0], self.n_classes))
+                    true = np.zeros((self.n_samples, self.n_classes))
                     for cls in range(self.n_classes):
                         dist_2 = KernelDensity(bandwidth=bandwidth, kernel=kernel)
                         dist_2.fit(self.X[self.y == cls][:, np.newaxis])
@@ -785,7 +785,7 @@ class TestGaussianMixtureEstimator(unittest.TestCase):
 
                     pred = dist_1.predict_log_proba(self.X)
 
-                    true = np.zeros((self.X.shape[0], self.n_classes))
+                    true = np.zeros((self.n_samples, self.n_classes))
                     for cls in range(self.n_classes):
                         dist_2 = GaussianMixture(
                             n_components=n_components,
@@ -850,8 +850,8 @@ class TestMultinomial(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.multinomial.logpmf(
                 self.X, n=self.n, p=dist.prob[cls]
@@ -865,8 +865,11 @@ class TestMultinomial(unittest.TestCase):
 class TestMultivariateNormal(unittest.TestCase):
 
     n_samples = 1000
+    n_features = 3
     n_classes = 2
-    X = np.random.multivariate_normal(mean=[0, 0, 0], cov=np.eye(3), size=n_samples)
+    X = np.random.multivariate_normal(
+        mean=[0 for _ in range(n_features)], cov=np.eye(n_features), size=n_samples
+    )
     y = np.random.randint(low=0, high=n_classes, size=n_samples)
 
     def test_fit_X(self):
@@ -901,8 +904,8 @@ class TestMultivariateNormal(unittest.TestCase):
         pred_1 = dist.mu
         pred_2 = dist.sigma
 
-        true_1 = np.zeros((self.n_classes, self.X.shape[1]))
-        true_2 = np.zeros((self.n_classes, self.X.shape[1], self.X.shape[1]))
+        true_1 = np.zeros((self.n_classes, self.n_features))
+        true_2 = np.zeros((self.n_classes, self.n_features, self.n_features))
         for cls in range(self.n_classes):
             true_1[cls] = self.X[self.y == cls].mean(axis=0)
             true_2[cls] = np.cov(self.X[self.y == cls], rowvar=False, ddof=0)
@@ -917,8 +920,8 @@ class TestMultivariateNormal(unittest.TestCase):
         pred_1 = dist.predict_log_proba(self.X)
         pred_2 = dist.predict_proba(self.X)
 
-        true_1 = np.zeros((self.X.shape[0], self.n_classes))
-        true_2 = np.zeros((self.X.shape[0], self.n_classes))
+        true_1 = np.zeros((self.n_samples, self.n_classes))
+        true_2 = np.zeros((self.n_samples, self.n_classes))
         for cls in range(self.n_classes):
             true_1[:, cls] = stats.multivariate_normal.logpdf(
                 self.X, mean=dist.mu[cls], cov=dist.sigma[cls]
