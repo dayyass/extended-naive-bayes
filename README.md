@@ -1,9 +1,4 @@
-# Naive Bayes
-
-### Overview
-
-TODO:
-TODO: add compare with sklearn (also in terms of interface)
+# Extended Naive Bayes
 
 ### Installation
 
@@ -40,8 +35,8 @@ List of available distributions:
 **Multivariate** | `Multinomial` | `MultivariateNormal`
 
 There are also two special kind of distributions:
-- [x] `ContinuousUnivariateDistribution` - any continuous univariate distribution from scipy.stats with method `.fit` *(scipy.stats.rv_continuous.fit)* (see *example 3*[TODO: add link]);
-- [x] `KernelDensityEstimator` - Kernel Density Estimation *(Parzen–Rosenblatt window method)* - non-parametric method (see *example 4*[TODO: add link]).
+- [x] `ContinuousUnivariateDistribution` - any continuous univariate distribution from scipy.stats with method `.fit` *(scipy.stats.rv_continuous.fit)* (see *example 3*);
+- [x] `KernelDensityEstimator` - Kernel Density Estimation *(Parzen–Rosenblatt window method)* - non-parametric method (see *example 4*).
 
 #### Example 1: Bernoulli distribution
 
@@ -260,3 +255,15 @@ All implemented distributions and models are covered with unittest.
 
 To run tests use:<br>
 `python -m unittest discover tests`
+
+### Citations
+
+If you use **extended_naive_bayes** in a scientific publication, we would appreciate references to the following BibTex entry:
+```
+@misc{dayyass_extended_naive_bayes,
+    author = {El-Ayyass, Dani},
+    title = {Extension of Naive Bayes Classificator},
+    howpublished = {\url{https://github.com/dayyass/extended_naive_bayes}},
+    year = {2021},
+}
+```
