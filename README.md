@@ -259,7 +259,7 @@ To run tests use:<br>
 ### Citations
 
 If you use **extended_naive_bayes** in a scientific publication, we would appreciate references to the following BibTex entry:
-```
+```bibtex
 @misc{dayyass_extended_naive_bayes,
     author = {El-Ayyass, Dani},
     title = {Extension of Naive Bayes Classificator},
