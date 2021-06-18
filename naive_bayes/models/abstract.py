@@ -40,7 +40,6 @@ class AbstractModel(ABC):
         :param np.ndarray X: training data.
         :param np.ndarray y: target values.
         """
-        pass
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -74,7 +73,6 @@ class AbstractModel(ABC):
         :return: class log probabilities.
         :rtype: np.ndarray
         """
-        pass
 
     # TODO: raise exception if model is not fitted
     # TODO: add _check
@@ -88,7 +86,6 @@ class AbstractModel(ABC):
         :return: samples.
         :rtype: np.ndarray
         """
-        pass
 
     def score(self, X: np.ndarray, y: np.ndarray) -> float:
         """
