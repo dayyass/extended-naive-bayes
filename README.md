@@ -261,9 +261,9 @@ To run tests use:<br>
 If you use **extended_naive_bayes** in a scientific publication, we would appreciate references to the following BibTex entry:
 ```bibtex
 @misc{dayyass2021naivebayes,
-    author = {El-Ayyass, Dani},
-    title = {Extension of Naive Bayes Classificator},
+    author =       {El-Ayyass, Dani},
+    title =        {Extension of Naive Bayes Classificator},
     howpublished = {\url{https://github.com/dayyass/extended_naive_bayes}},
-    year = {2021},
+    year =         {2021}
 }
 ```
